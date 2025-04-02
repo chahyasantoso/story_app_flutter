@@ -1,14 +1,29 @@
 name: story_app
-description: "A new Flutter project."
+description: 'Story App'
 publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.7.0
+  sdk: '>=3.1.3 <4.0.0'
 
 dependencies:
+  cached_network_image: ^3.4.1
+  cloud_firestore: ^5.6.5
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  firebase_auth: ^5.5.1
+  firebase_core: ^3.12.1
+  http: ^1.3.0
+  intl: ^0.19.0
+  path_provider: ^2.1.5
+  provider: ^6.1.2
+  shared_preferences: ^2.5.1
+  sqflite: ^2.4.1
+  timezone: ^0.10.0
+  uuid: ^4.5.1
+  app_settings: ^5.2.0
 
 dev_dependencies:
   flutter_test:
@@ -16,4 +31,40 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
+  generate: true
   uses-material-design: true
+  assets:
+    - assets/images/
+  fonts:
+    - family: RobotoSlab
+      fonts:
+        - asset: assets/fonts/roboto_slab/RobotoSlab-Black.ttf
+          weight: 700
+        - asset: assets/fonts/roboto_slab/RobotoSlab-ExtraBold.ttf
+          weight: 600
+        - asset: assets/fonts/roboto_slab/RobotoSlab-Bold.ttf
+          weight: 500
+        - asset: assets/fonts/roboto_slab/RobotoSlab-SemiBold.ttf
+          weight: 400
+        - asset: assets/fonts/roboto_slab/RobotoSlab-Medium.ttf
+          weight: 300
+        - asset: assets/fonts/roboto_slab/RobotoSlab-Regular.ttf
+          weight: 200
+        - asset: assets/fonts/roboto_slab/RobotoSlab-Light.ttf
+          weight: 100
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/poppins/Poppins-Black.ttf
+          weight: 700
+        - asset: assets/fonts/poppins/Poppins-ExtraBold.ttf
+          weight: 600
+        - asset: assets/fonts/poppins/Poppins-Bold.ttf
+          weight: 500
+        - asset: assets/fonts/poppins/Poppins-SemiBold.ttf
+          weight: 400
+        - asset: assets/fonts/poppins/Poppins-Medium.ttf
+          weight: 300
+        - asset: assets/fonts/poppins/Poppins-Regular.ttf
+          weight: 200
+        - asset: assets/fonts/poppins/Poppins-Light.ttf
+          weight: 100

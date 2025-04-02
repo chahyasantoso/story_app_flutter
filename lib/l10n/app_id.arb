@@ -1,0 +1,12 @@
+{
+    "titleApp": "StoryApp",
+    "landingText": "Abadikan momen Anda dengan StoryApp. Bagikan perjalanan Dicoding Anda melalui cerita dan gambar yang menakjubkan",
+    "login": "Masuk",
+    "register": "Daftar",
+    "emailLabelText": "Email",
+    "passwordLabelText": "Kata Sandi",
+    "usernameLabelText": "Nama User",
+    "emailHintText":  "Masukkan email Anda",
+    "passwordHintText": "Masukkan kata sandi Anda",
+    "usernameHintText": "Masukkan nama user Anda"
+}

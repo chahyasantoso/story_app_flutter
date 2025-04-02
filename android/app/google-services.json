@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "502903425301",
+    "project_id": "storyapp-be175",
+    "storage_bucket": "storyapp-be175.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502903425301:android:5b5ef8e93dfc7e8b1ec11c",
+        "android_client_info": {
+          "package_name": "com.example.story_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpOgsCpCMIB-WOgc8bsL6W7tE8FGoSh5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

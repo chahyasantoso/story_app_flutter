@@ -1,0 +1,12 @@
+{
+    "titleApp": "StoryApp",
+    "landingText": "Capture your momemnts with StoryApp. Share your Dicoding journey through stories and stunning pictures",
+    "login": "Login",
+    "register": "Register",
+    "emailLabelText": "Email",
+    "passwordLabelText": "Password",
+    "usernameLabelText": "Username",
+    "emailHintText":  "Enter your email",
+    "passwordHintText": "Enter your password",
+    "usernameHintText": "Enter your username"
+}
