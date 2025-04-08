@@ -5,15 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/services/firebase_auth_service.dart';
 import 'package:story_app/firebase_options.dart';
 import 'package:story_app/provider/firebase_auth_provider.dart';
-import 'package:story_app/routes/auth_router_delegate.dart';
-import 'package:story_app/routes/main_router_delegate.dart';
-import 'package:story_app/screen/landing/landing_screen.dart';
-import 'package:story_app/screen/login/login_screen.dart';
-import 'package:story_app/screen/register/register_screen.dart';
+import 'package:story_app/routes/app_route_parser.dart';
+import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/style/theme/story_theme.dart';
-import 'package:story_app/style/typography/story_text_styles.dart';
-import 'package:story_app/widget/adaptive_header_layout.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
@@ -22,6 +16,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final firebaseAuth = FirebaseAuth.instance;
+
   runApp(
     MultiProvider(
       providers: [
@@ -34,10 +29,7 @@ void main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) => AuthRouterDelegate(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => MainRouterDelegate(),
+          create: (context) => AppRouterDelegate(),
         ),
       ],
       child: const MainApp(),
@@ -45,12 +37,31 @@ void main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late AppRouteParser _routeParser;
+  late PlatformRouteInformationProvider _routeInformationProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _routeParser = AppRouteParser();
+    _routeInformationProvider = PlatformRouteInformationProvider(
+      initialRouteInformation: RouteInformation(
+        uri: Uri.parse("/"),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: "StoryApp",
       //locale: Locale("id"),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -58,10 +69,10 @@ class MainApp extends StatelessWidget {
       theme: StoryTheme.lightTheme,
       darkTheme: StoryTheme.darkTheme,
       themeMode: ThemeMode.light,
-      home: Router(
-        routerDelegate: context.read<AuthRouterDelegate>(),
-        backButtonDispatcher: RootBackButtonDispatcher(),
-      ),
+      routeInformationParser: _routeParser,
+      routeInformationProvider: _routeInformationProvider,
+      routerDelegate: context.read<AppRouterDelegate>(),
+      backButtonDispatcher: RootBackButtonDispatcher(),
     );
   }
 }

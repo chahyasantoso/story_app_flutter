@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/routes/auth_router_delegate.dart';
+import 'package:story_app/routes/app_router_delegate.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -14,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            context.read<AuthRouterDelegate>().onLogout();
+            context.read<AppRouterDelegate>().onLogout();
           },
           child: const Text("Log out"),
         ),

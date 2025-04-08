@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/routes/auth_router_delegate.dart';
+import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
@@ -69,7 +69,7 @@ class _LandingScreenState extends State<LandingScreen> {
               Expanded(
                 child: FilledButton(
                   onPressed: () {
-                    context.read<AuthRouterDelegate>().onLogin();
+                    context.read<AppRouterDelegate>().onLogin();
                   },
                   child: Text(AppLocalizations.of(context)!.login),
                 ),
@@ -78,7 +78,7 @@ class _LandingScreenState extends State<LandingScreen> {
               Expanded(
                 child: FilledButton(
                   onPressed: () {
-                    context.read<AuthRouterDelegate>().onRegister();
+                    context.read<AppRouterDelegate>().onRegister();
                   },
                   child: Text(AppLocalizations.of(context)!.register),
                 ),

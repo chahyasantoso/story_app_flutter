@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/routes/auth_router_delegate.dart';
+import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
@@ -101,7 +101,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
             FilledButton(
               onPressed: () {
-                context.read<AuthRouterDelegate>().doLogin();
+                context.read<AppRouterDelegate>().doLogin();
               },
               child: Text(AppLocalizations.of(context)!.login),
             ),

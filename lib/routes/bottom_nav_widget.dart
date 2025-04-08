@@ -1,31 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/main_router_delegate.dart';
 
 class BottomNavWidget extends StatefulWidget {
-  const BottomNavWidget({super.key});
+  final MainPath state;
+  final ValueChanged<int> onTap;
+  const BottomNavWidget({super.key, required this.state, required this.onTap});
 
   @override
   State<BottomNavWidget> createState() => _BottomNavWidgetState();
 }
 
 class _BottomNavWidgetState extends State<BottomNavWidget> {
-  late MainRouterDelegate _routerDelegate;
-
-  @override
-  void initState() {
-    _routerDelegate = context.read<MainRouterDelegate>();
-    _routerDelegate.initRoute();
-    super.initState();
-  }
+  int get currentIndex => widget.state.index;
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = context.watch<MainRouterDelegate>().isHome ? 0 : 1;
+    final childBackButtonDispatcher =
+        ChildBackButtonDispatcher(Router.of(context).backButtonDispatcher!);
+    childBackButtonDispatcher.takePriority();
+
     return Scaffold(
       body: Router(
-        routerDelegate: _routerDelegate,
-        backButtonDispatcher: RootBackButtonDispatcher(),
+        routerDelegate: MainRouterDelegate(state: widget.state),
+        backButtonDispatcher: childBackButtonDispatcher,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
@@ -39,14 +37,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
             label: "Settings",
           ),
         ],
-        onTap: (value) {
-          switch (value) {
-            case 0:
-              _routerDelegate.onHome();
-            case 1:
-              _routerDelegate.onSettings();
-          }
-        },
+        onTap: widget.onTap,
       ),
     );
   }
