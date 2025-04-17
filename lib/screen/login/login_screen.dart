@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:story_app/provider/firebase_auth_provider.dart';
+import 'package:story_app/provider/story_auth_provider.dart';
+import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
+import 'package:story_app/static/auth_status.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
@@ -78,6 +82,8 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -88,22 +94,40 @@ class _LoginFormState extends State<LoginForm> {
           spacing: 16,
           children: [
             TextFormField(
+              controller: emailController,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.emailLabelText,
                 hintText: AppLocalizations.of(context)!.emailHintText,
               ),
             ),
             TextFormField(
+              controller: passwordController,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.passwordLabelText,
                 hintText: AppLocalizations.of(context)!.passwordHintText,
               ),
             ),
             FilledButton(
-              onPressed: () {
-                context.read<AppRouterDelegate>().doLogin();
+              onPressed: () async {
+                final email = emailController.text;
+                final password = passwordController.text;
+
+                await context
+                    .read<StoryAuthProvider>()
+                    .loginUser(email, password);
+
+                if (!context.mounted) return;
+                context.read<AppRoute>().onHome();
               },
-              child: Text(AppLocalizations.of(context)!.login),
+              child: Consumer<StoryAuthProvider>(
+                builder: (context, authProvider, child) {
+                  print("Auth status: ${authProvider.authStatus}");
+                  return switch (authProvider.authStatus) {
+                    Authenticating() => const CircularProgressIndicator(),
+                    _ => Text(AppLocalizations.of(context)!.login),
+                  };
+                },
+              ),
             ),
           ],
         ),

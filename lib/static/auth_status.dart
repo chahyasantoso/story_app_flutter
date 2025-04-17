@@ -1,3 +1,5 @@
+import 'package:story_app/data/model/user_profile.dart';
+
 sealed class AuthStatus {
   const AuthStatus();
 }
@@ -19,7 +21,8 @@ class Authenticating extends AuthStatus {
 }
 
 class Authenticated extends AuthStatus {
-  const Authenticated();
+  final UserProfile profile;
+  const Authenticated(this.profile);
 }
 
 class SigningOut extends AuthStatus {

@@ -1,42 +1,27 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:story_app/routes/app_path.dart';
+import 'package:story_app/routes/app_route.dart';
+import 'package:story_app/routes/app_route_path.dart';
+import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/bottom_nav_widget.dart';
 import 'package:story_app/screen/landing/landing_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
 
-class AppRouterDelegate extends RouterDelegate<AppPath>
+class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  final AppRoute _appRoute;
+  final BottomNavRoute? _bottomNavRoute = !kIsWeb ? BottomNavRoute() : null;
 
-  late AppPath _state;
-  late AppNavigatorObserver _observer;
-  AppRouterDelegate() {
-    _state = LandingPath();
-    _observer = AppNavigatorObserver(() {
-      onBackButtonPressed(true);
-    });
+  AppRouterDelegate(this._appRoute) {
+    _appRoute.addListener(notifyListeners);
   }
 
-  void onLogin() {
-    _state = LoginPath();
-    notifyListeners();
-  }
-
-  void onRegister() {
-    _state = RegisterPath();
-    notifyListeners();
-  }
-
-  void onLogout() {
-    _state = LandingPath();
-    notifyListeners();
-  }
-
-  void doLogin() {
-    _state = ListPath();
-    notifyListeners();
+  @override
+  void dispose() {
+    _appRoute.removeListener(notifyListeners);
+    super.dispose();
   }
 
   List<Page<dynamic>> get _loggedOutStack => [
@@ -44,103 +29,91 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
           key: ValueKey("LandingScreen"),
           child: LandingScreen(),
         ),
-        if (_state is LoginPath)
+        if (_appRoute.path is LoginRoutePath)
           MaterialPage(
             key: ValueKey("LoginScreen"),
             child: LoginScreen(),
           ),
-        if (_state is RegisterPath)
+        if (_appRoute.path is RegisterRoutePath)
           MaterialPage(
             key: ValueKey("RegisterScreen"),
             child: RegisterScreen(),
           ),
       ];
 
+  bool canPop = false;
   List<Page<dynamic>> get _loggedInStack => [
         MaterialPage(
-          key: ValueKey("MainScreen"),
-          child: BottomNavWidget(
-            state: (_state as MainPath),
-            onTap: (value) {
-              switch (value) {
-                case 0:
-                  onHome();
-                case 1:
-                  onSettings();
-              }
+          key: ValueKey("BottomNavWidget"),
+          child: PopScope(
+            canPop: canPop,
+            onPopInvokedWithResult: (didPop, result) {
+              final context = _navigatorKey.currentContext!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  content: Text("Press back again to exit"),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              canPop = true;
+              notifyListeners();
+              Future.delayed(const Duration(seconds: 2), () {
+                canPop = false;
+                notifyListeners();
+              });
             },
+            child: BottomNavWidget(bottomNavRoute: _bottomNavRoute),
           ),
         ),
       ];
 
-  void onHome() {
-    _state = ListPath();
-    notifyListeners();
-  }
-
-  void onSettings() {
-    _state = SettingsPath();
-    notifyListeners();
-  }
-
-  void onDetail() {
-    _state = DetailPath("1");
-    notifyListeners();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final navStack = switch (_state) {
-      MainPath() => _loggedInStack,
-      _ => _loggedOutStack,
-    };
+    final navStack = _appRoute.path is AuthenticatedRoutePath
+        ? _loggedInStack
+        : _loggedOutStack;
+
     return Navigator(
       key: _navigatorKey,
-      observers: [_observer],
       pages: navStack,
-      onDidRemovePage: (page) {},
+      onDidRemovePage: (page) {
+        final topPage = navStack.last;
+        if (topPage.key == page.key) {
+          onBackButtonPressed();
+        }
+      },
     );
   }
 
-  bool onBackButtonPressed(bool didPop) {
-    if (didPop) {
-      if (_state is LoginPath) {
-        _state = LandingPath();
-        notifyListeners();
-      } else if (_state is RegisterPath) {
-        _state = LandingPath();
-        notifyListeners();
-      }
+  void onBackButtonPressed() {
+    if (_appRoute.path is LoginRoutePath) {
+      _appRoute.onLanding();
+    } else if (_appRoute.path is RegisterRoutePath) {
+      _appRoute.onLanding();
     }
-    return didPop;
   }
 
   @override
   Future<bool> popRoute() async {
-    return onBackButtonPressed(await super.popRoute());
+    final isAuthenticatedRoutePath = _appRoute.path is AuthenticatedRoutePath;
+    final isBottomNavRoutePop =
+        isAuthenticatedRoutePath && _bottomNavRoute?.pop() == true;
+    if (isBottomNavRoutePop) {
+      return true;
+    }
+    return super.popRoute();
   }
 
   @override
   GlobalKey<NavigatorState>? get navigatorKey => _navigatorKey;
 
   @override
-  AppPath? get currentConfiguration => _state;
+  AppRoutePath? get currentConfiguration => _appRoute.path;
 
   @override
-  Future<void> setNewRoutePath(AppPath configuration) async {
+  Future<void> setNewRoutePath(AppRoutePath configuration) async {
     print("setNewRoutePath: $configuration");
-    _state = configuration;
-    notifyListeners();
-  }
-}
-
-class AppNavigatorObserver extends NavigatorObserver {
-  final Function onDidPop;
-  AppNavigatorObserver(this.onDidPop);
-
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    super.didPop(route, previousRoute);
-    onDidPop();
+    _appRoute.changePath(configuration);
   }
 }

@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/routes/app_router_delegate.dart';
+import 'package:story_app/provider/story_auth_provider.dart';
+import 'package:story_app/routes/app_route.dart';
+import 'package:story_app/static/auth_status.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingScreen extends StatefulWidget {
-  const LandingScreen({
-    super.key,
-  });
+  const LandingScreen({super.key});
 
   @override
   State<LandingScreen> createState() => _LandingScreenState();
 }
 
 class _LandingScreenState extends State<LandingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      if (!mounted) return;
+      await context.read<StoryAuthProvider>().loaduser();
+      if (!mounted) return;
+      context.read<AppRoute>().onHome();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,27 +74,34 @@ class _LandingScreenState extends State<LandingScreen> {
           Text(
             AppLocalizations.of(context)!.landingText,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: () {
-                    context.read<AppRouterDelegate>().onLogin();
-                  },
-                  child: Text(AppLocalizations.of(context)!.login),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: FilledButton(
-                  onPressed: () {
-                    context.read<AppRouterDelegate>().onRegister();
-                  },
-                  child: Text(AppLocalizations.of(context)!.register),
-                ),
-              ),
-            ],
+          Consumer<StoryAuthProvider>(
+            builder: (context, authProvider, child) {
+              return switch (authProvider.authStatus) {
+                Authenticating() => const CircularProgressIndicator(),
+                _ => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            context.read<AppRoute>().onLogin();
+                          },
+                          child: Text(AppLocalizations.of(context)!.login),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            context.read<AppRoute>().onRegister();
+                          },
+                          child: Text(AppLocalizations.of(context)!.register),
+                        ),
+                      ),
+                    ],
+                  ),
+              };
+            },
           ),
         ],
       ),
