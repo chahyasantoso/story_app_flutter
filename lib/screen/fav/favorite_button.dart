@@ -20,22 +20,15 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   bool _isFavorite = false;
 
   void _isFavListener() {
-    final listState = _listProvider.result;
-    if (listState is ResultSuccess) {
-      final favList = listState.data as List<Story>;
-      final fav = favList.where(
-        (favorite) => favorite.id == widget.data.id,
-      );
-      if (fav.isNotEmpty) {
-        setState(() {
-          _isFavorite = true;
-        });
-      } else {
-        setState(() {
-          _isFavorite = false;
-        });
-      }
-    }
+    getFav();
+  }
+
+  void getFav() async {
+    final isFav = await _buttonProvider.isFavorite(widget.data.id);
+    if (!mounted) return;
+    setState(() {
+      _isFavorite = isFav;
+    });
   }
 
   @override
@@ -44,7 +37,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     _buttonProvider = context.read<FavoriteButtonProvider>();
     _listProvider = context.read<FavoriteListProvider>();
     _listProvider.addListener(_isFavListener);
-    _isFavListener();
+    Future.microtask(getFav);
   }
 
   @override
@@ -57,18 +50,12 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     if (_isFavorite) {
       await _buttonProvider.removeFavoriteByStoryId(widget.data.id);
       if (_buttonProvider.result is ResultSuccess) {
-        setState(() {
-          _isFavorite = false;
-        });
-        _listProvider.getAll();
+        await _listProvider.getAll();
       }
     } else {
       await _buttonProvider.addFavorite(widget.data);
       if (_buttonProvider.result is ResultSuccess) {
-        setState(() {
-          _isFavorite = true;
-        });
-        _listProvider.getAll();
+        await _listProvider.getAll();
       }
     }
   }
