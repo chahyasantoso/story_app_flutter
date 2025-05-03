@@ -18,7 +18,7 @@ import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/style/theme/story_theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '/l10n/app_localizations.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 

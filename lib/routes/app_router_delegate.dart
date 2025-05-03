@@ -9,7 +9,7 @@ import 'package:story_app/routes/bottom_nav_widget.dart';
 import 'package:story_app/screen/add/add_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '/l10n/app_localizations.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
 
 class AppRouterDelegate extends RouterDelegate<AppPath>
@@ -119,7 +119,6 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
 
   @override
   Future<void> setNewRoutePath(AppPath configuration) async {
-    print("setNewPath: $configuration");
     _appRoute.changePath(configuration);
   }
 }

@@ -13,7 +13,7 @@ import 'package:story_app/widget/description_form_field.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
 import 'package:story_app/widget/loading_button.dart';
 import 'package:story_app/widget/story_image.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '/l10n/app_localizations.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});

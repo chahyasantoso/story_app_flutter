@@ -7,7 +7,7 @@ import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/fav_router_delegate.dart';
 import 'package:story_app/routes/home_router_delegate.dart';
 import 'package:story_app/screen/settings/settings_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '/l10n/app_localizations.dart';
 
 class BottomNavWidget extends StatefulWidget {
   final BottomNavRoute bottomNavRoute;

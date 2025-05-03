@@ -9,7 +9,7 @@ import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
 import 'package:story_app/widget/story_app_header.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
