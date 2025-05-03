@@ -1,26 +1,34 @@
+import 'package:story_app/routes/app_path.dart';
+
 class BottomNavRoute {
-  List<int> _indexStack = [0];
-  List<int> get indexStack => _indexStack;
-  int get currentIndex => _indexStack.last;
+  List<BottomNavPath> _pathStack = [HomePath()];
+  List<BottomNavPath> get pathStack => _pathStack;
+  BottomNavPath get currentPath => _pathStack.last;
+  int get currentIndex => switch (currentPath) {
+        HomePath() => 0,
+        FavPath() => 1,
+        SettingsPath() => 3,
+      };
 
   final int _maxIndexLength = 5;
-  void push(int index) {
-    if (currentIndex != index) {
+
+  void pushPath(BottomNavPath appPath) {
+    if (currentPath.runtimeType != appPath.runtimeType) {
       final lastNItems =
-          _indexStack.reversed.take(_maxIndexLength - 1).toList().reversed;
-      _indexStack = [...lastNItems, index];
+          _pathStack.reversed.take(_maxIndexLength - 1).toList().reversed;
+      _pathStack = [...lastNItems, appPath];
     }
   }
 
-  bool pop() {
-    if (_indexStack.length > 1) {
-      _indexStack = [..._indexStack..removeLast()];
+  bool popPath() {
+    if (_pathStack.length > 1) {
+      _pathStack = [..._pathStack..removeLast()];
       return true;
     }
     return false;
   }
 
   void reset() {
-    _indexStack = [0];
+    _pathStack = [HomePath()];
   }
 }

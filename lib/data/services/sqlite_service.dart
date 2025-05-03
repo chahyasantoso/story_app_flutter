@@ -1,21 +1,22 @@
-import 'package:restaurant_app/data/model/favorite.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:story_app/data/model/story.dart';
 
 class SqliteService {
-  static const String _databaseName = 'restaurant.db';
-  static const String _tableName = 'favorite';
+  static const String _databaseName = "story.db";
+  static const String _tableName = "favorite";
   static const int _version = 1;
 
   Future<void> createTables(Database database) async {
     await database.execute(
       """CREATE TABLE $_tableName(
-       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-       restaurantId TEXT,
+       favoriteId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+       id TEXT,
        name TEXT,
        description TEXT,
-       pictureId TEXT,
-       city TEXT,
-       rating REAL
+       photoUrl TEXT,
+       createdAt TEXT,
+       lat REAL,
+       lon REAL
      )
      """,
     );
@@ -31,10 +32,10 @@ class SqliteService {
     );
   }
 
-  Future<int> insertItem(Favorite favorite) async {
+  Future<int> insertItem(Story story) async {
     final db = await _initializeDb();
 
-    final data = favorite.toJson();
+    final data = story.toJson();
     final id = await db.insert(
       _tableName,
       data,
@@ -43,14 +44,14 @@ class SqliteService {
     return id;
   }
 
-  Future<List<Favorite>> getAllItems() async {
+  Future<List<Story>> getAllItems() async {
     final db = await _initializeDb();
-    final results = await db.query(_tableName, orderBy: "id DESC");
+    final results = await db.query(_tableName, orderBy: "favoriteId DESC");
 
-    return results.map((result) => Favorite.fromJson(result)).toList();
+    return results.map((result) => Story.fromJson(result)).toList();
   }
 
-  Future<Favorite> getItemById(int id) async {
+  Future<Story?> getItemByStoryId(String id) async {
     final db = await _initializeDb();
     final results = await db.query(
       _tableName,
@@ -59,39 +60,17 @@ class SqliteService {
       limit: 1,
     );
 
-    return results.map((result) => Favorite.fromJson(result)).first;
+    if (results.isEmpty) return null;
+    return results.map((result) => Story.fromJson(result)).first;
   }
 
-  Future<Favorite> getItemByRestaurantId(String restaurantId) async {
-    final db = await _initializeDb();
-    final results = await db.query(
-      _tableName,
-      where: "restaurantId = ?",
-      whereArgs: [restaurantId],
-      limit: 1,
-    );
-
-    return results.map((result) => Favorite.fromJson(result)).first;
-  }
-
-  Future<int> removeItem(int id) async {
+  Future<int> removeItemByStoryId(String id) async {
     final db = await _initializeDb();
 
     final result = await db.delete(
       _tableName,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return result;
-  }
-
-  Future<int> removeItemByRestaurantId(String restaurantId) async {
-    final db = await _initializeDb();
-
-    final result = await db.delete(
-      _tableName,
-      where: "restaurantId = ?",
-      whereArgs: [restaurantId],
     );
     return result;
   }

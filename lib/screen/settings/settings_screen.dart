@@ -1,35 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:story_app/provider/firebase_auth_provider.dart';
-import 'package:story_app/provider/story_auth_provider.dart';
-import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/routes/app_router_delegate.dart';
-import 'package:story_app/static/auth_status.dart';
+import 'package:story_app/screen/settings/settings_dark_mode.dart';
+import 'package:story_app/screen/settings/settings_locale.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations =
+        AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Settings Screen"),
+        title: Text(appLocalizations.titleSettings),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await context.read<StoryAuthProvider>().logoutUser();
-
-            if (!context.mounted) return;
-            context.read<AppRoute>().onLanding();
-          },
-          child: Consumer<StoryAuthProvider>(
-            builder: (context, authProvider, child) {
-              return switch (authProvider.authStatus) {
-                SigningOut() => const CircularProgressIndicator(),
-                _ => const Text("Log out"),
-              };
-            },
+      body: SingleChildScrollView(
+        reverse: false,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  const SettingsDarkMode(),
+                  const Divider(),
+                  const SettingsLocale(),
+                  const Divider(),
+                ],
+              ),
+            ),
           ),
         ),
       ),

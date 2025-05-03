@@ -65,13 +65,13 @@ class StoryTextStyles {
   );
 
   static TextStyle bodyLarge = _poppins.copyWith(
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
   );
 
   static TextStyle bodyMedium = _poppins.copyWith(
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
   );

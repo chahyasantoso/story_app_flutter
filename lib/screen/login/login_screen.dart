@@ -1,13 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/provider/firebase_auth_provider.dart';
-import 'package:story_app/provider/story_auth_provider.dart';
+import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/routes/app_router_delegate.dart';
-import 'package:story_app/static/auth_status.dart';
-import 'package:story_app/style/colors/story_colors.dart';
-import 'package:story_app/style/typography/story_text_styles.dart';
+import 'package:story_app/screen/login/login_form.dart';
+import 'package:story_app/static/auth_state.dart';
+import 'package:story_app/static/snack_bar_utils.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
+import 'package:story_app/widget/story_app_header.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,120 +18,104 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SnackBarUtils {
+  late AppAuthProvider authProvider;
+  late AppRoute appRoute;
+
+  void _snackBarListener() {
+    final authState = authProvider.authState;
+    switch (authState) {
+      case AuthError(message: final message):
+        showSnackBar(context, message);
+      case AuthAuthenticated(message: final message):
+        showSnackBar(context, message);
+      case AuthAccountCreated():
+        showSnackBar(context, appLocalizations.accountCreateSuccess);
+      default:
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = context.read<AppAuthProvider>();
+    authProvider.addListener(_snackBarListener);
+    appRoute = context.read<AppRoute>();
+    Future.microtask(() async {
+      await authProvider.loaduser();
+      if (authProvider.authState is AuthAuthenticated) {
+        appRoute.go("/app/home");
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    authProvider.removeListener(_snackBarListener);
+    super.dispose();
+  }
+
+  bool get isPortrait =>
+      MediaQuery.of(context).orientation == Orientation.portrait;
+
+  AppLocalizations get appLocalizations =>
+      AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-      ),
       body: AdaptiveHeaderLayout(
-        headerSize: 0.2,
-        headerBackground: DecoratedBox(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/background.png"),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(200),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.login,
-                style: StoryTextStyles.headlineLarge.copyWith(
-                  color: StoryColors.green.color,
-                ),
-              ),
-            ),
-          ),
-        ),
+        headerSize: 0.4,
+        headerBackground: StoryAppHeader(),
         child: buildContent(),
       ),
     );
   }
 
   Widget buildContent() {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: Text(appLocalizations.titleLogin),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: Container(
-          alignment: isPortrait ? Alignment.topCenter : Alignment.center,
-          child: LoginForm(),
+        child: Align(
+          alignment: isPortrait ? Alignment.topLeft : Alignment.center,
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 16,
+              children: [
+                LoginForm(),
+                buildDivider(),
+                buildSignInWithGoogle(),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
-}
 
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+  Widget buildDivider() {
+    return Row(
+      spacing: 16,
+      children: [
+        Expanded(child: Divider()),
+        Text("OR"),
+        Expanded(child: Divider()),
+      ],
+    );
+  }
 
-  @override
-  State<LoginForm> createState() => _LoginFormState();
-}
-
-class _LoginFormState extends State<LoginForm> {
-  final formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Form(
-        key: formKey,
-        child: Column(
-          spacing: 16,
-          children: [
-            TextFormField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.emailLabelText,
-                hintText: AppLocalizations.of(context)!.emailHintText,
-              ),
-            ),
-            TextFormField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.passwordLabelText,
-                hintText: AppLocalizations.of(context)!.passwordHintText,
-              ),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final email = emailController.text;
-                final password = passwordController.text;
-
-                await context
-                    .read<StoryAuthProvider>()
-                    .loginUser(email, password);
-
-                if (!context.mounted) return;
-                context.read<AppRoute>().onHome();
-              },
-              child: Consumer<StoryAuthProvider>(
-                builder: (context, authProvider, child) {
-                  print("Auth status: ${authProvider.authStatus}");
-                  return switch (authProvider.authStatus) {
-                    Authenticating() => const CircularProgressIndicator(),
-                    _ => Text(AppLocalizations.of(context)!.login),
-                  };
-                },
-              ),
-            ),
-          ],
-        ),
+  Widget buildSignInWithGoogle() {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: null,
+        child: Text(appLocalizations.signInWithGoogleButtonText),
       ),
     );
   }

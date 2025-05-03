@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/user_profile.dart';
 import 'package:story_app/data/services/firebase_auth_service.dart';
-import 'package:story_app/static/auth_status.dart';
+import 'package:story_app/static/auth_state.dart';
 
 class FirebaseAuthProvider extends ChangeNotifier {
   final FirebaseAuthService _service;
@@ -11,62 +11,54 @@ class FirebaseAuthProvider extends ChangeNotifier {
   String? _message;
   String? get message => _message;
 
-  AuthStatus _authStatus = Unauthenticated();
-  AuthStatus get authStatus => _authStatus;
+  AuthState _authState = AuthUnauthenticated();
+  AuthState get authState => _authState;
 
   Future<void> createAccount(String name, String email, String password) async {
-    _authStatus = CreatingAccount();
+    _authState = AuthCreatingAccount();
     notifyListeners();
     try {
       await _service.createUser(name, email, password);
-      _authStatus = AccountCreated();
+      _authState = AuthAccountCreated();
       _message = "Create account is success";
     } catch (e) {
       _message = e.toString();
-      _authStatus = Error(_message!);
+      _authState = AuthError(e: e, message: e.toString());
     }
     notifyListeners();
   }
 
   Future<void> signInUser(String email, String password) async {
-    _authStatus = Authenticating();
+    _authState = AuthAuthenticating();
     notifyListeners();
     try {
-      // sign in ke story api (ada service lain lagi)
-      // kalo ok, lanjut ke firebase auth
-      // on error, return error message
-
       final result = await _service.signInUser(email, password);
       final profile = UserProfile(
         userId: result.user?.uid ?? "",
         name: result.user?.displayName ?? "",
         token: "",
       );
-      _authStatus = Authenticated(profile);
-      _message = "Sign in is success";
+      _authState = AuthAuthenticated(user: profile);
     } catch (e) {
-      _message = e.toString();
-      _authStatus = Error(_message!);
+      _authState = AuthError(e: e, message: e.toString());
     }
     notifyListeners();
   }
 
   Future<void> signOutUser() async {
-    _authStatus = SigningOut();
+    _authState = AuthSigningOut();
     notifyListeners();
     try {
       await _service.signOut();
-      _authStatus = Unauthenticated();
-      _message = "Sign out is success";
+      _authState = AuthUnauthenticated();
     } catch (e) {
-      _message = e.toString();
-      _authStatus = Error(_message!);
+      _authState = AuthError(e: e, message: e.toString());
     }
     notifyListeners();
   }
 
   Future<void> loadProfile() async {
-    _authStatus = Unauthenticated();
+    _authState = AuthUnauthenticated();
     notifyListeners();
     try {
       final user = await _service.userChanges();
@@ -77,10 +69,10 @@ class FirebaseAuthProvider extends ChangeNotifier {
         name: user.displayName ?? "User",
         token: "",
       );
-      _authStatus = Authenticated(profile);
+      _authState = AuthAuthenticated(user: profile);
     } catch (e) {
       _message = e.toString();
-      _authStatus = Error(_message!);
+      _authState = AuthError(e: e, message: e.toString());
     }
     notifyListeners();
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story_app/data/model/settings.dart';
 import 'package:story_app/data/model/user_profile.dart';
 
 class SharedPreferencesService {
@@ -10,52 +11,34 @@ class SharedPreferencesService {
   static const String keySetting = "STORY_APP_SETTING";
 
   Future<void> saveUserValue(UserProfile user) async {
-    try {
-      String userString = jsonEncode(user.toJson());
-      await _preferences.setString(
-        keyUser,
-        userString,
-      );
-    } catch (e) {
-      throw Exception("can't save shared preferences");
-    }
+    String userString = jsonEncode(user.toJson());
+    await _preferences.setString(
+      keyUser,
+      userString,
+    );
   }
 
   Future<UserProfile?> getUserValue() async {
-    try {
-      final userString = await _preferences.getString(keyUser);
-      final userJson = jsonDecode("$userString");
-      return userJson != null ? UserProfile.fromJson(userJson) : null;
-    } catch (e) {
-      throw Exception("can't get shared preferences");
-    }
+    final userString = await _preferences.getString(keyUser);
+    final userJson = jsonDecode("$userString");
+    return userJson != null ? UserProfile.fromJson(userJson) : null;
   }
 
   Future<void> removeUserValue() async {
-    try {
-      await _preferences.remove(keyUser);
-    } catch (e) {
-      throw Exception("can't remove shared preferences");
-    }
+    await _preferences.remove(keyUser);
+  }
+
+  Future<void> saveSettingValue(Settings setting) async {
+    String settingString = jsonEncode(setting.toJson());
+    await _preferences.setString(
+      keySetting,
+      settingString,
+    );
+  }
+
+  Future<Settings?> getSettingValue() async {
+    final settingString = await _preferences.getString(keySetting);
+    final settingJson = jsonDecode("$settingString");
+    return settingJson != null ? Settings.fromJson(settingJson) : null;
   }
 }
-  
-
-  // Future<void> saveSettingValue(Setting setting) async {
-  //   try {
-  //     String settingString = jsonEncode(setting.toJson());
-  //     await _preferences.setString(
-  //       keySetting,
-  //       settingString,
-  //     );
-  //   } catch (e) {
-  //     throw Exception("can't save shared preferences");
-  //   }
-  // }
-
-  // Setting getSettingValue() {
-  //   final settingString = _preferences.getString(keySetting);
-  //   final settingJson = jsonDecode("$settingString");
-  //   return Setting.fromJson(settingJson);
-  // }
-

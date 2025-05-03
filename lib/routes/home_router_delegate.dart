@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:story_app/data/services/story_api_service.dart';
+import 'package:story_app/provider/story_detail_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/routes/app_route_path.dart';
-import 'package:story_app/screen/add/add_screen.dart';
+import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/screen/detail/detail_screen.dart';
 import 'package:story_app/screen/home/home_screen.dart';
 
 final homeNavigatorKey = GlobalKey<NavigatorState>();
 
-class HomeRouterDelegate extends RouterDelegate<AppRoutePath>
+class HomeRouterDelegate extends RouterDelegate<AppPath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin {
   final _navigatorKey = homeNavigatorKey;
   final AppRoute _appRoute;
@@ -27,15 +29,19 @@ class HomeRouterDelegate extends RouterDelegate<AppRoutePath>
           key: ValueKey("HomeScreen"),
           child: HomeScreen(),
         ),
-        if (_appRoute.path is HomeDetailRoutePath)
+        if (_appRoute.path is HomeDetailPath)
           MaterialPage(
             key: ValueKey("DetailScreen"),
-            child: DetailScreen(),
-          ),
-        if (_appRoute.path is AddRoutePath)
-          MaterialPage(
-            key: ValueKey("AddScreen"),
-            child: AddScreen(),
+            child: Builder(
+              builder: (context) {
+                final apiService = context.read<StoryApiService>();
+                final id = (_appRoute.path as HomeDetailPath).id;
+                return ChangeNotifierProvider(
+                  create: (context) => StoryDetailProvider(apiService),
+                  child: DetailScreen(id: id),
+                );
+              },
+            ),
           ),
       ];
 
@@ -46,32 +52,23 @@ class HomeRouterDelegate extends RouterDelegate<AppRoutePath>
       pages: navStack,
       onDidRemovePage: (page) {
         final topPage = navStack.last;
-        print(
-            "home router page removed ${page.key}, top of the page ${topPage.key}");
         if (topPage.key == page.key) {
-          onBackButtonPressed();
+          if (_appRoute.path is HomeDetailPath) {
+            _appRoute.onHome();
+          }
         }
       },
     );
-  }
-
-  void onBackButtonPressed() async {
-    if (_appRoute.path is HomeDetailRoutePath) {
-      _appRoute.onHome();
-    } else if (_appRoute.path is AddRoutePath) {
-      _appRoute.onHome();
-    }
   }
 
   @override
   GlobalKey<NavigatorState>? get navigatorKey => _navigatorKey;
 
   @override
-  AppRoutePath? get currentConfiguration => _appRoute.path;
+  AppPath? get currentConfiguration => _appRoute.path;
 
   @override
-  Future<void> setNewRoutePath(AppRoutePath configuration) async {
-    print("setNewRoutePath from home");
+  Future<void> setNewRoutePath(AppPath configuration) async {
     _appRoute.changePath(configuration);
   }
 }

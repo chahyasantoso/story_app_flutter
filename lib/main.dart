@@ -1,29 +1,38 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:story_app/data/services/firebase_auth_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
+import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
-import 'package:story_app/firebase_options.dart';
-import 'package:story_app/provider/firebase_auth_provider.dart';
-import 'package:story_app/provider/story_auth_provider.dart';
+import 'package:story_app/data/services/story_auth_service.dart';
+import 'package:story_app/provider/favorite_list_provider.dart';
+import 'package:story_app/provider/favorite_button_provider.dart';
+import 'package:story_app/provider/app_auth_provider.dart';
+import 'package:story_app/provider/settings_provider.dart';
+import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_route_parser.dart';
-import 'package:story_app/routes/app_route_path.dart';
+import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
-import 'package:story_app/static/auth_status.dart';
+import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/style/theme/story_theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final pref = SharedPreferencesAsync();
+  /* for next feature, sign in with google
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final firebaseAuth = FirebaseAuth.instance;
+  final firebaseAuth = FirebaseAuth.instance; */
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  }
 
   runApp(
     MultiProvider(
@@ -32,31 +41,51 @@ void main() async {
           create: (context) => SharedPreferencesService(pref),
         ),
         Provider(
-          create: (context) => StoryApiService(),
+          create: (context) => StoryAuthService(),
+        ),
+        Provider(
+          create: (context) => SqliteService(),
         ),
         ChangeNotifierProvider(
-          create: (context) => StoryAuthProvider(
-            storyApiService: context.read<StoryApiService>(),
+          create: (context) => AppAuthProvider(
+            storyAuthService: context.read<StoryAuthService>(),
             prefService: context.read<SharedPreferencesService>(),
           ),
         ),
-        // Provider(
-        //   create: (context) => FirebaseAuthService(firebaseAuth),
-        // ),
-        // ChangeNotifierProvider(
-        //   create: (context) => FirebaseAuthProvider(
-        //     context.read<FirebaseAuthService>(),
-        //   ),
-        // ),
+        ProxyProvider<AppAuthProvider, StoryApiService>(
+          update: (context, authProvider, previous) {
+            return StoryApiService(authProvider.userProfile?.token ?? "");
+          },
+        ),
         ChangeNotifierProvider(
           create: (context) => AppRoute(
-            redirect: (AppRoutePath path) {
-              final isLoggedIn =
-                  context.read<StoryAuthProvider>().authStatus is Authenticated;
+            redirect: (AppPath path) {
+              final isLoggedIn = context.read<AppAuthProvider>().authState
+                  is AuthAuthenticated;
               return !isLoggedIn
-                  ? (path is AuthenticatedRoutePath ? LandingRoutePath() : null)
-                  : (path is! AuthenticatedRoutePath ? HomeRoutePath() : null);
+                  ? (path is AuthenticatedPath ? LoginPath() : null)
+                  : (path is! AuthenticatedPath ? HomePath() : null);
             },
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => StoryListProvider(
+            context.read<StoryApiService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SettingsProvider(
+            context.read<SharedPreferencesService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FavoriteButtonProvider(
+            context.read<SqliteService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FavoriteListProvider(
+            context.read<SqliteService>(),
           ),
         ),
       ],
@@ -65,21 +94,53 @@ void main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late AppRoute appRoute;
+  late AppRouterDelegate appRouterDelegate;
+  late SettingsProvider settingsProvider;
+  late FavoriteListProvider favoriteListProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    appRoute = context.read<AppRoute>();
+    appRouterDelegate = AppRouterDelegate(appRoute);
+    settingsProvider = context.read<SettingsProvider>();
+    favoriteListProvider = context.read<FavoriteListProvider>();
+
+    Future.microtask(() {
+      settingsProvider.loadSettings();
+      favoriteListProvider.getAll();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final locale = context.watch<SettingsProvider>().settings.locale;
+    final isDarkModeEnabled =
+        context.watch<SettingsProvider>().settings.isDarkModeEnabled;
+
     return MaterialApp.router(
       title: "StoryApp",
-      //locale: Locale("id"),
+      locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: StoryTheme.lightTheme,
       darkTheme: StoryTheme.darkTheme,
-      themeMode: ThemeMode.light,
+      themeMode: isDarkModeEnabled ? ThemeMode.dark : ThemeMode.light,
+      scrollBehavior: ScrollConfiguration.of(context).copyWith(dragDevices: {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      }),
       routeInformationParser: AppRouteParser(),
-      routerDelegate: AppRouterDelegate(context.read<AppRoute>()),
+      routerDelegate: appRouterDelegate,
       backButtonDispatcher: RootBackButtonDispatcher(),
     );
   }
