@@ -10,9 +10,10 @@ import 'package:story_app/screen/add/add_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:story_app/static/snack_bar_utils.dart';
 
 class AppRouterDelegate extends RouterDelegate<AppPath>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin {
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin, SnackBarUtils {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final AppRoute _appRoute;
 
@@ -57,13 +58,7 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
               final context = _navigatorKey.currentContext!;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  content: Text(appLocalizations.messageBackToExit),
-                  duration: Duration(seconds: 2),
-                ),
-              );
+              showSnackBar(context, appLocalizations.messageBackToExit);
               canPop = true;
               notifyListeners();
               Future.delayed(const Duration(seconds: 2), () {

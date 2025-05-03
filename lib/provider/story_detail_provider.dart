@@ -11,26 +11,38 @@ class StoryDetailProvider extends ChangeNotifier {
   ResultState _result = ResultNone();
   ResultState get result => _result;
 
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
+
   Future<void> getStoryDetail(String id) async {
     _result = ResultLoading();
-    notifyListeners();
+    safeNotifyListeners();
     try {
       final response = await _apiService.getStoryDetail(id);
       _result = ResultSuccess(
         data: response.story,
         message: response.message,
       );
-      notifyListeners();
+      safeNotifyListeners();
     } on HttpException catch (e) {
       _result = ResultError(error: e, message: e.message);
-      notifyListeners();
+      safeNotifyListeners();
     } catch (e) {
       debugPrint("Error $e");
       _result = ResultError(
         error: e,
         message: "Failed to get story detail",
       );
-      notifyListeners();
+      safeNotifyListeners();
     }
   }
 }

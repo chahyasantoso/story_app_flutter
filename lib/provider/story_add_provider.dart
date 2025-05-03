@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:story_app/widget/validation_exception.dart';
 
 class StoryAddProvider extends ChangeNotifier {
   final StoryApiService _apiService;
@@ -14,7 +15,7 @@ class StoryAddProvider extends ChangeNotifier {
   set imageFile(XFile? image) {
     _result = ResultNone();
     _imageFile = image;
-    notifyListeners();
+    safeNotifyListeners();
   }
 
   String? _description;
@@ -22,11 +23,23 @@ class StoryAddProvider extends ChangeNotifier {
   set description(String? text) {
     _result = ResultNone();
     _description = text;
-    notifyListeners();
+    safeNotifyListeners();
   }
 
   ResultState _result = ResultNone();
   ResultState get result => _result;
+
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   XFile _validateImageFile() {
     final imageFile = _imageFile;
@@ -63,7 +76,7 @@ class StoryAddProvider extends ChangeNotifier {
 
   Future<void> addStory() async {
     _result = ResultLoading();
-    notifyListeners();
+    safeNotifyListeners();
 
     try {
       final imageFile = _validateImageFile();
@@ -79,21 +92,13 @@ class StoryAddProvider extends ChangeNotifier {
         data: null,
         message: result.message,
       );
-      notifyListeners();
+      safeNotifyListeners();
     } catch (e) {
       _result = ResultError(
         error: e,
         message: e.toString(),
       );
-      notifyListeners();
+      safeNotifyListeners();
     }
   }
-}
-
-class ValidationException implements Exception {
-  final String message;
-  const ValidationException(this.message);
-
-  @override
-  String toString() => message;
 }

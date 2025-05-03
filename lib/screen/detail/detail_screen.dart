@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/story_detail_provider.dart';
 import 'package:story_app/screen/detail/story_detail_item.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DetailScreen extends StatefulWidget {
   final String id;
