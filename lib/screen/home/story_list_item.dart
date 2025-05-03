@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
-import 'package:story_app/widget/favorite_button.dart';
+import 'package:story_app/screen/fav/favorite_button.dart';
 import 'package:story_app/widget/story_network_image.dart';
 
 class StoryListItem extends StatelessWidget {

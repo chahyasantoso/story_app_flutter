@@ -9,7 +9,6 @@ class StoryTheme {
       brightness: Brightness.light,
       textTheme: _textTheme,
       useMaterial3: true,
-      //appBarTheme: _appBarTheme,
     );
   }
 
@@ -19,7 +18,6 @@ class StoryTheme {
       brightness: Brightness.dark,
       textTheme: _textTheme,
       useMaterial3: true,
-      //appBarTheme: _appBarTheme,
     );
   }
 
@@ -41,9 +39,5 @@ class StoryTheme {
       labelMedium: StoryTextStyles.labelMedium,
       labelSmall: StoryTextStyles.labelSmall,
     );
-  }
-
-  static AppBarTheme get _appBarTheme {
-    return AppBarTheme(toolbarTextStyle: _textTheme.titleLarge);
   }
 }

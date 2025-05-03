@@ -5,7 +5,7 @@ import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
-import 'package:story_app/widget/story_list_item.dart';
+import 'package:story_app/screen/home/story_list_item.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FavScreen extends StatefulWidget {
