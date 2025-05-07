@@ -23,10 +23,7 @@ class Settings {
     };
   }
 
-  Settings copyWith({
-    final bool? isDarkModeEnabled,
-    final Locale? locale,
-  }) {
+  Settings copyWith({final bool? isDarkModeEnabled, final Locale? locale}) {
     return Settings(
       isDarkModeEnabled: isDarkModeEnabled ?? this.isDarkModeEnabled,
       locale: locale ?? this.locale,

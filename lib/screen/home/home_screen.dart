@@ -19,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
   late FavoriteButtonProvider favButtonProvider;
+  late StoryListProvider listProvider;
+  late ScrollController scrollController;
 
   void _snackBarListener() {
     final resultState = favButtonProvider.result;
@@ -29,20 +31,42 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
     }
   }
 
+  void _endOfListListener() {
+    final isEndOfList = scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent;
+    if (isEndOfList) {
+      listProvider.getNextStories();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     favButtonProvider = context.read<FavoriteButtonProvider>();
     favButtonProvider.addListener(_snackBarListener);
-    Future.microtask(() {
-      if (!mounted) return;
-      context.read<StoryListProvider>().getAllStories();
-    });
+
+    listProvider = context.read<StoryListProvider>();
+    scrollController = ScrollController();
+    scrollController.addListener(_endOfListListener);
+
+    Future.microtask(listProvider.getNextStories);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    favButtonProvider.removeListener(_snackBarListener);
+    super.dispose();
   }
 
   void handleDetail(String id) {
     final appRoute = context.read<AppRoute>();
     appRoute.go("/app/home/detail/$id");
+  }
+
+  Future<void> handleRefresh() async {
+    listProvider.reset();
+    listProvider.getNextStories();
   }
 
   @override
@@ -56,46 +80,55 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
       appBar: AppBar(
         title: Text(appLocalizations.titleHome),
       ),
-      body: Consumer<StoryListProvider>(
-        builder: (context, provider, child) {
-          return switch (provider.result) {
-            ResultLoading() => Center(
-                child: CircularProgressIndicator(),
-              ),
-            ResultSuccess<List<Story>>(data: final data) => Padding(
-                padding: EdgeInsets.all(8),
-                child: data.isEmpty
-                    ? Center(
-                        child: IconMessage.notFound(
-                            appLocalizations.messageNotFound),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: provider.getAllStories,
-                        child: ListView.builder(
-                          scrollDirection:
-                              isPortrait ? Axis.vertical : Axis.horizontal,
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final story = data[index];
-                            return GestureDetector(
-                              onTap: () => handleDetail(story.id),
-                              child: StoryListItem(data: story),
-                            );
-                          },
-                        ),
-                      ),
-              ),
-            ResultError(message: final message) => Center(
-                child: IconMessage.error(
-                  message.toString(),
-                  button: FilledButton(
-                      onPressed: () => provider.getAllStories(),
-                      child: Text(appLocalizations.messageTryAgain)),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Consumer<StoryListProvider>(
+          builder: (context, provider, child) {
+            return switch (provider.result) {
+              ResultLoading() => Center(
+                  child: CircularProgressIndicator(),
                 ),
-              ),
-            _ => SizedBox(),
-          };
-        },
+              ResultSuccess<List<Story>>(data: final data) when data.isEmpty =>
+                Center(
+                  child: IconMessage.notFound(appLocalizations.messageNotFound),
+                ),
+              ResultSuccess<List<Story>>(data: final data)
+                  when data.isNotEmpty =>
+                RefreshIndicator(
+                  onRefresh: handleRefresh,
+                  child: ListView.builder(
+                    key: PageStorageKey("storyList"),
+                    controller: scrollController,
+                    scrollDirection:
+                        isPortrait ? Axis.vertical : Axis.horizontal,
+                    itemCount: data.length + (provider.isNextPage ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == data.length) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      final story = data[index];
+                      return GestureDetector(
+                        onTap: () => handleDetail(story.id),
+                        child: StoryListItem(data: story),
+                      );
+                    },
+                  ),
+                ),
+              ResultError(message: final message) => Center(
+                  child: IconMessage.error(
+                    message.toString(),
+                    button: FilledButton(
+                        onPressed: listProvider.getNextStories,
+                        child: Text(appLocalizations.messageTryAgain)),
+                  ),
+                ),
+              _ => SizedBox(),
+            };
+          },
+        ),
       ),
     );
   }
