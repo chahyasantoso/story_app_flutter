@@ -66,9 +66,7 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
     if (!(isAndroid || isiOS)) return;
 
     final ImagePicker picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.camera,
-    );
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       _addProvider.imageFile = pickedFile;
     }
@@ -90,12 +88,13 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(appLocalizations.titleAdd),
-      ),
-      body: FlexScrollLayout(
-        child1: buildImagePicker(),
-        child2: buildDescriptionField(),
+      appBar: AppBar(title: Text(appLocalizations.titleAdd)),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FlexScrollLayout(
+          spacing: 16,
+          children: [buildImagePicker(), buildDescriptionField()],
+        ),
       ),
     );
   }
@@ -103,17 +102,13 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
   Widget buildImagePicker() {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         alignment: Alignment.bottomRight,
         children: [
-          StoryImage(
-            image: buildImage(),
-          ),
+          StoryImage(image: buildImage()),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -130,7 +125,7 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -141,10 +136,7 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
     if (imagePath != null) {
       return kIsWeb
           ? Image.network(imagePath.toString(), fit: BoxFit.contain)
-          : Image.file(
-              File(imagePath.toString()),
-              fit: BoxFit.contain,
-            );
+          : Image.file(File(imagePath.toString()), fit: BoxFit.contain);
     }
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -156,9 +148,7 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
       child: Center(
         child: Text(
           appLocalizations.messageSelectImage,
-          style: StoryTextStyles.titleLarge.copyWith(
-            color: Colors.white,
-          ),
+          style: StoryTextStyles.titleLarge.copyWith(color: Colors.white),
         ),
       ),
     );

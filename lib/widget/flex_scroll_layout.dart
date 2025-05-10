@@ -1,49 +1,52 @@
 import 'package:flutter/material.dart';
 
 class FlexScrollLayout extends StatelessWidget {
-  final Widget child1;
-  final Widget child2;
-  const FlexScrollLayout(
-      {super.key, required this.child1, required this.child2});
+  final double spacing;
+  final double breakpoint;
+  final List<Widget> children;
+
+  const FlexScrollLayout({
+    super.key,
+    this.spacing = 0.0,
+    this.breakpoint = 600,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
-    bool isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-    return isPortrait ? buildPortraitLayout() : buildLancapeLayout();
-  }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= breakpoint;
 
-  Widget buildPortraitLayout() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
-          children: [
-            child1,
-            child2,
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildLancapeLayout() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 16,
-        children: [
-          child1,
-          Expanded(
-            child: SingleChildScrollView(
-              child: child2,
+        if (isWide) {
+          return SizedBox(
+            height:
+                constraints.maxHeight != double.infinity
+                    ? constraints.maxHeight
+                    : MediaQuery.of(context).size.height,
+            child: Row(
+              spacing: spacing,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  children
+                      .map(
+                        (child) => Expanded(
+                          child: SingleChildScrollView(child: child),
+                        ),
+                      )
+                      .toList(),
             ),
-          ),
-        ],
-      ),
+          );
+        } else {
+          return SingleChildScrollView(
+            child: Column(
+              spacing: spacing,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            ),
+          );
+        }
+      },
     );
   }
 }

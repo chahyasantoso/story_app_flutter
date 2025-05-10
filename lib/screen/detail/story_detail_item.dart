@@ -18,18 +18,23 @@ class StoryDetailItem extends StatefulWidget {
 class _StoryDetailItemState extends State<StoryDetailItem> {
   @override
   Widget build(BuildContext context) {
-    return FlexScrollLayout(
-      child1: buildImage(),
-      child2: buildDescription(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: FlexScrollLayout(
+            spacing: 16,
+            children: [buildImage(), buildDescription()],
+          ),
+        );
+      },
     );
   }
 
   Widget buildImage() {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -61,11 +66,7 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
           ),
           child: Row(
             spacing: 4,
-            children: [
-              ...buildDateTime(),
-              ...buildLocation(),
-              Spacer(),
-            ],
+            children: [...buildDateTime(), ...buildLocation(), Spacer()],
           ),
         ),
         RichText(
@@ -78,11 +79,10 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
                 text: widget.data.name,
                 style: StoryTextStyles.labelLarge,
               ),
-              const WidgetSpan(
-                child: SizedBox(width: 8),
-              ),
+              const WidgetSpan(child: SizedBox(width: 8)),
               TextSpan(
-                text: widget.data.description,
+                text:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris rutrum dui ut ligula bibendum, vitae porttitor nulla vestibulum. Donec pellentesque lacus at ullamcorper pulvinar. Cras quam metus, eleifend luctus fringilla et, consectetur id ipsum. Curabitur tristique tellus sit amet ex ullamcorper hendrerit. Vivamus ac velit a erat dapibus suscipit. Pellentesque aliquam tempor leo malesuada consequat. Sed in sodales ipsum. Vestibulum vestibulum enim est, id molestie eros fermentum a. Integer interdum urna velit, id mollis massa aliquam non. Curabitur sit amet nulla pretium, efficitur magna eu, ultrices lectus.",
               ),
             ],
           ),
@@ -97,11 +97,7 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
     return [
       Icon(Icons.calendar_month_outlined),
       Expanded(
-        child: Text(
-          dateString,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        child: Text(dateString, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
     ];
   }

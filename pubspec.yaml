@@ -33,6 +33,9 @@ dependencies:
   flutter_image_compress: ^2.4.0
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
+  google_maps_flutter: ^2.12.1
+  google_maps_flutter_web: ^0.5.12
+  pointer_interceptor: ^0.10.1+2
 
 dev_dependencies:
   flutter_test:

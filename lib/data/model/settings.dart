@@ -1,32 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class Settings {
-  final bool isDarkModeEnabled;
-  final Locale locale;
+part 'settings.freezed.dart';
+part 'settings.g.dart';
 
-  const Settings({
-    this.isDarkModeEnabled = false,
-    this.locale = const Locale("en"),
-  });
+@freezed
+abstract class Settings with _$Settings {
+  const factory Settings({
+    @Default(false) bool isDarkModeEnabled,
+    @Default(Locale('en')) @LocaleConverter() Locale locale,
+  }) = _Settings;
 
-  factory Settings.fromJson(Map<String, dynamic> json) {
-    return Settings(
-      isDarkModeEnabled: json["isDarkModeEnabled"],
-      locale: Locale(json["locale"]),
-    );
-  }
+  factory Settings.fromJson(Map<String, dynamic> json) =>
+      _$SettingsFromJson(json);
+}
 
-  Map<String, dynamic> toJson() {
-    return {
-      "isDarkModeEnabled": isDarkModeEnabled,
-      "locale": locale.languageCode,
-    };
-  }
+class LocaleConverter implements JsonConverter<Locale, String> {
+  const LocaleConverter();
 
-  Settings copyWith({final bool? isDarkModeEnabled, final Locale? locale}) {
-    return Settings(
-      isDarkModeEnabled: isDarkModeEnabled ?? this.isDarkModeEnabled,
-      locale: locale ?? this.locale,
-    );
-  }
+  @override
+  Locale fromJson(String json) => Locale(json);
+
+  @override
+  String toJson(Locale locale) => locale.languageCode;
 }
