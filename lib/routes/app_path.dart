@@ -27,7 +27,10 @@ sealed class AppPath {
             }
             return FavPath();
           case 'add':
-            return AddPath();
+            if (segments.length == 3 && segments[2] == 'map') {
+              return AddMapPath();
+            }
+            return AddPostPath();
           case 'settings':
             return SettingsPath();
         }
@@ -85,9 +88,16 @@ class FavDetailPath extends AuthenticatedPath {
   Uri toUri() => Uri(path: '/app/fav/detail/$id');
 }
 
-class AddPath extends AuthenticatedPath {
+sealed class AddPath extends AuthenticatedPath {}
+
+class AddPostPath extends AddPath {
   @override
   Uri toUri() => Uri(path: '/app/add');
+}
+
+class AddMapPath extends AddPath {
+  @override
+  Uri toUri() => Uri(path: '/app/add/map');
 }
 
 class SettingsPath extends BottomNavPath {

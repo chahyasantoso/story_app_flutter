@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/provider/story_add_provider.dart';
+import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/bottom_nav_widget.dart';
-import 'package:story_app/screen/add/add_screen.dart';
+import 'package:story_app/screen/add/add_map_screen.dart';
+import 'package:story_app/screen/add/add_post_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
 import '/l10n/app_localizations.dart';
@@ -28,16 +30,10 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
   }
 
   List<Page<dynamic>> get _loggedOutStack => [
-        MaterialPage(
-          key: ValueKey("LoginScreen"),
-          child: LoginScreen(),
-        ),
-        if (_appRoute.path is RegisterPath)
-          MaterialPage(
-            key: ValueKey("RegisterScreen"),
-            child: RegisterScreen(),
-          ),
-      ];
+    MaterialPage(key: ValueKey("LoginScreen"), child: LoginScreen()),
+    if (_appRoute.path is RegisterPath)
+      MaterialPage(key: ValueKey("RegisterScreen"), child: RegisterScreen()),
+  ];
 
   AppLocalizations get appLocalizations {
     final context = _navigatorKey.currentContext;
@@ -51,54 +47,62 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
   bool canPop = false;
   final BottomNavRoute _bottomNavRoute = BottomNavRoute();
   List<Page<dynamic>> get _loggedInStack => [
-        MaterialPage(
-          key: ValueKey("BottomNavWidget"),
-          child: PopScope(
-            canPop: canPop,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              final context = _navigatorKey.currentContext!;
-              showSnackBar(context, appLocalizations.messageBackToExit);
-              canPop = true;
-              notifyListeners();
-              Future.delayed(const Duration(seconds: 2), () {
-                canPop = false;
-                notifyListeners();
-              });
-            },
-            child: BottomNavWidget(bottomNavRoute: _bottomNavRoute),
-          ),
-        ),
-        if (_appRoute.path is AddPath)
-          MaterialPage(
-            key: ValueKey("AddScreen"),
-            child: ChangeNotifierProvider(
-              create: (context) => StoryAddProvider(
-                context.read<StoryApiService>(),
-              ),
-              child: AddScreen(),
-            ),
-          ),
-      ];
+    MaterialPage(
+      key: ValueKey("BottomNavWidget"),
+      child: PopScope(
+        canPop: canPop,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          final context = _navigatorKey.currentContext!;
+          showSnackBar(context, appLocalizations.messageBackToExit);
+          canPop = true;
+          notifyListeners();
+          Future.delayed(const Duration(seconds: 2), () {
+            canPop = false;
+            notifyListeners();
+          });
+        },
+        child: BottomNavWidget(bottomNavRoute: _bottomNavRoute),
+      ),
+    ),
+    if (_appRoute.path is AddPath) ..._addNavStack,
+  ];
+
+  List<Page<dynamic>> get _addNavStack => [
+    MaterialPage(key: ValueKey("AddPostScreen"), child: AddPostScreen()),
+    if (_appRoute.path is AddMapPath)
+      MaterialPage(key: ValueKey("AddMapScreen"), child: AddMapScreen()),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final navStack =
         _appRoute.path is AuthenticatedPath ? _loggedInStack : _loggedOutStack;
 
-    return Navigator(
-      key: _navigatorKey,
-      pages: navStack,
-      onDidRemovePage: (page) {
-        final topPage = navStack.last;
-        if (topPage.key == page.key) {
-          if (_appRoute.path is RegisterPath) {
-            _appRoute.onLogin();
-          } else if (_appRoute.path is AddPath) {
-            _appRoute.changePath(_bottomNavRoute.currentPath);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (context) => StoryAddProvider(context.read<StoryApiService>()),
+        ),
+        ChangeNotifierProvider(create: (_) => StoryMapProvider()),
+      ],
+      child: Navigator(
+        key: _navigatorKey,
+        pages: navStack,
+        onDidRemovePage: (page) {
+          final topPage = navStack.last;
+          if (topPage.key == page.key) {
+            if (_appRoute.path is RegisterPath) {
+              _appRoute.goBack();
+            } else if (_appRoute.path is AddPostPath) {
+              _appRoute.changePath(_bottomNavRoute.currentPath);
+            } else if (_appRoute.path is AddMapPath) {
+              _appRoute.goBack();
+            }
           }
-        }
-      },
+        },
+      ),
     );
   }
 

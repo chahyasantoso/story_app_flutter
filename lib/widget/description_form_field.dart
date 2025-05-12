@@ -3,10 +3,17 @@ import '/l10n/app_localizations.dart';
 
 class DescriptionFormField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
+  final String? errorText;
   final void Function(String value)? onChanged;
 
-  const DescriptionFormField(
-      {super.key, required this.controller, this.onChanged});
+  const DescriptionFormField({
+    super.key,
+    required this.controller,
+    this.focusNode,
+    this.onChanged,
+    this.errorText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,20 +22,16 @@ class DescriptionFormField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: appLocalizations.descriptionLabelText,
         hintText: appLocalizations.descriptionHintText,
+        errorText: errorText,
       ),
       keyboardType: TextInputType.multiline,
       minLines: 1,
       maxLines: 5,
-      validator: (value) {
-        if (value?.isEmpty == true) {
-          return appLocalizations.messageDescriptionEmpty;
-        }
-        return null;
-      },
     );
   }
 }

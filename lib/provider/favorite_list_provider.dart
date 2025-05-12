@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/static/result_state.dart';
+import 'package:story_app/widget/safe_change_notifier.dart';
 
-class FavoriteListProvider extends ChangeNotifier {
+class FavoriteListProvider extends SafeChangeNotifier {
   final SqliteService _sqliteService;
 
   FavoriteListProvider(this._sqliteService);
@@ -22,10 +23,7 @@ class FavoriteListProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint("Error $e");
-      _result = ResultError(
-        error: e,
-        message: "Failed to fetch favorite",
-      );
+      _result = ResultError(error: e, message: "Failed to fetch favorite");
       notifyListeners();
     }
   }

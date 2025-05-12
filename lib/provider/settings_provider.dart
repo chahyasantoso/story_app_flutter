@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/settings.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
+import 'package:story_app/widget/safe_change_notifier.dart';
 
-class SettingsProvider extends ChangeNotifier {
+class SettingsProvider extends SafeChangeNotifier {
   final SharedPreferencesService prefService;
 
   SettingsProvider(this.prefService);

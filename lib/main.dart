@@ -10,6 +10,8 @@ import 'package:story_app/data/services/story_auth_service.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_button_provider.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
+import 'package:story_app/provider/geocoding_provider.dart';
+import 'package:story_app/provider/location_provider.dart';
 import 'package:story_app/provider/settings_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -37,20 +39,15 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        Provider(
-          create: (context) => SharedPreferencesService(pref),
-        ),
-        Provider(
-          create: (context) => StoryAuthService(),
-        ),
-        Provider(
-          create: (context) => SqliteService(),
-        ),
+        Provider(create: (_) => SharedPreferencesService(pref)),
+        Provider(create: (_) => StoryAuthService()),
+        Provider(create: (_) => SqliteService()),
         ChangeNotifierProvider(
-          create: (context) => AppAuthProvider(
-            storyAuthService: context.read<StoryAuthService>(),
-            prefService: context.read<SharedPreferencesService>(),
-          ),
+          create:
+              (context) => AppAuthProvider(
+                storyAuthService: context.read<StoryAuthService>(),
+                prefService: context.read<SharedPreferencesService>(),
+              ),
         ),
         ProxyProvider<AppAuthProvider, StoryApiService>(
           update: (context, authProvider, previous) {
@@ -58,36 +55,38 @@ void main() async {
           },
         ),
         ChangeNotifierProvider(
-          create: (context) => AppRoute(
-            redirect: (AppPath path) {
-              final isLoggedIn = context.read<AppAuthProvider>().authState
-                  is AuthAuthenticated;
-              return !isLoggedIn
-                  ? (path is AuthenticatedPath ? LoginPath() : null)
-                  : (path is! AuthenticatedPath ? HomePath() : null);
-            },
-          ),
+          create:
+              (context) => AppRoute(
+                redirect: (AppPath path) {
+                  final isLoggedIn =
+                      context.read<AppAuthProvider>().authState
+                          is AuthAuthenticated;
+                  return !isLoggedIn
+                      ? (path is AuthenticatedPath ? LoginPath() : null)
+                      : (path is! AuthenticatedPath ? HomePath() : null);
+                },
+              ),
         ),
         ChangeNotifierProvider(
-          create: (context) => StoryListProvider(
-            context.read<StoryApiService>(),
-          ),
+          create:
+              (context) => StoryListProvider(context.read<StoryApiService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => SettingsProvider(
-            context.read<SharedPreferencesService>(),
-          ),
+          create:
+              (context) =>
+                  SettingsProvider(context.read<SharedPreferencesService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => FavoriteButtonProvider(
-            context.read<SqliteService>(),
-          ),
+          create:
+              (context) =>
+                  FavoriteButtonProvider(context.read<SqliteService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => FavoriteListProvider(
-            context.read<SqliteService>(),
-          ),
+          create:
+              (context) => FavoriteListProvider(context.read<SqliteService>()),
         ),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => GeocodingProvider()),
       ],
       child: const MainApp(),
     ),
@@ -135,10 +134,9 @@ class _MainAppState extends State<MainApp> {
       theme: StoryTheme.lightTheme,
       darkTheme: StoryTheme.darkTheme,
       themeMode: isDarkModeEnabled ? ThemeMode.dark : ThemeMode.light,
-      scrollBehavior: ScrollConfiguration.of(context).copyWith(dragDevices: {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      }),
+      scrollBehavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
+      ),
       routeInformationParser: AppRouteParser(),
       routerDelegate: appRouterDelegate,
       backButtonDispatcher: RootBackButtonDispatcher(),

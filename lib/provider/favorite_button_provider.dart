@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/static/result_state.dart';
+import 'package:story_app/widget/safe_change_notifier.dart';
 
-class FavoriteButtonProvider extends ChangeNotifier {
+class FavoriteButtonProvider extends SafeChangeNotifier {
   final SqliteService _sqliteService;
 
   FavoriteButtonProvider(this._sqliteService);
@@ -30,8 +31,10 @@ class FavoriteButtonProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final id = await _sqliteService.removeItemByStoryId(storyId);
-      _result =
-          ResultSuccess(data: id, message: "Story removed from favorites");
+      _result = ResultSuccess(
+        data: id,
+        message: "Story removed from favorites",
+      );
       notifyListeners();
     } catch (e) {
       _result = ResultError(error: e, message: "Failed to remove favorites");

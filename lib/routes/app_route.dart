@@ -14,16 +14,17 @@ class AppRoute extends ChangeNotifier {
     notifyListeners();
   }
 
-  void go(String uri) {
-    changePath(AppPath.fromUri(Uri.parse(uri)));
+  void go(String uriString) {
+    changePath(AppPath.fromUri(Uri.parse(uriString)));
   }
 
-  void onLogin() => changePath(LoginPath());
-  void onRegister() => changePath(RegisterPath());
-  void onHome() => changePath(HomePath());
-  void onHomeDetail(String id) => changePath(HomeDetailPath(id: id));
-  void onFav() => changePath(FavPath());
-  void onFavDetail(String id) => changePath(FavDetailPath(id: id));
-  void onAdd() => changePath(AddPath());
-  void onSettings() => changePath(SettingsPath());
+  void goBack() {
+    final uri = _path.toUri();
+    final segments = List<String>.from(uri.pathSegments);
+    if (segments.isEmpty) return;
+
+    segments.removeLast();
+    final newUri = Uri(pathSegments: segments);
+    changePath(AppPath.fromUri(newUri));
+  }
 }

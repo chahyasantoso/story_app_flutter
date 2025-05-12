@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/story_map_provider.dart';
-import 'package:story_app/screen/detail/maps_screen.dart';
 import 'package:story_app/screen/detail/story_detail_map.dart';
 import '/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +28,12 @@ class _DetailScreenState extends State<DetailScreen> {
     });
   }
 
-  bool isLocationValid(double? lat, double? lon) => lat != null && lon != null;
+  bool isLocationValid(double? lat, double? lon) {
+    if (lat == null || lon == null) return false;
+    if (lat < -90 || lat > 90) return false;
+    if (lon < -180 || lon > 180) return false;
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +51,10 @@ class _DetailScreenState extends State<DetailScreen> {
               StoryDetailItem(data: story),
             ResultSuccess<Story>(data: final story)
                 when isLocationValid(story.lat, story.lon) =>
-              ChangeNotifierProvider(
-                create: (_) => StoryMapProvider(),
+              MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(create: (_) => StoryMapProvider()),
+                ],
                 child: StoryDetailMap(data: story),
               ),
             ResultError(message: final message) => Center(

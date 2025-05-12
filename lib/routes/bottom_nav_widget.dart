@@ -11,10 +11,7 @@ import '/l10n/app_localizations.dart';
 
 class BottomNavWidget extends StatefulWidget {
   final BottomNavRoute bottomNavRoute;
-  const BottomNavWidget({
-    super.key,
-    required this.bottomNavRoute,
-  });
+  const BottomNavWidget({super.key, required this.bottomNavRoute});
 
   @override
   State<BottomNavWidget> createState() => _BottomNavWidgetState();
@@ -53,48 +50,35 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
         ..takePriority();
 
   List<Widget> get bottomNavStack => [
-        Router(
-          routerDelegate: _homeRouterDelegate,
-          backButtonDispatcher: widget.bottomNavRoute.currentIndex == 0
+    Router(
+      routerDelegate: _homeRouterDelegate,
+      backButtonDispatcher:
+          widget.bottomNavRoute.currentIndex == 0
               ? childBackButtonDispatcher
               : null,
-        ),
-        Router(
-          routerDelegate: _favRouterDelegate,
-          backButtonDispatcher: widget.bottomNavRoute.currentIndex == 1
+    ),
+    Router(
+      routerDelegate: _favRouterDelegate,
+      backButtonDispatcher:
+          widget.bottomNavRoute.currentIndex == 1
               ? childBackButtonDispatcher
               : null,
-        ),
-        SizedBox(),
-        SettingsScreen(),
-        SizedBox(),
-      ];
+    ),
+    SizedBox(),
+    SettingsScreen(),
+    SizedBox(),
+  ];
 
   AppLocalizations get appLocalizations =>
       AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
 
   List<Map<String, Object>> get navData => [
-        {
-          "label": appLocalizations.labelHome,
-          "icon": Icon(Icons.home),
-        },
-        {
-          "label": appLocalizations.labelFavorite,
-          "icon": Icon(Icons.favorite),
-        },
-        {
-          "label": appLocalizations.labelAdd,
-          "icon": Icon(Icons.add),
-        },
-        {
-          "label": appLocalizations.labelSettings,
-          "icon": Icon(Icons.settings),
-        },
-        {
-          "label": appLocalizations.labelSignOut,
-          "icon": Icon(Icons.logout),
-        },
-      ];
+    {"label": appLocalizations.labelHome, "icon": Icon(Icons.home)},
+    {"label": appLocalizations.labelFavorite, "icon": Icon(Icons.favorite)},
+    {"label": appLocalizations.labelAdd, "icon": Icon(Icons.add)},
+    {"label": appLocalizations.labelSettings, "icon": Icon(Icons.settings)},
+    {"label": appLocalizations.labelSignOut, "icon": Icon(Icons.logout)},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +90,18 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
         children: [
           if (!isPortrait)
             NavigationRail(
-              leading: SizedBox(
-                height: 60,
-              ),
+              leading: SizedBox(height: 60),
               backgroundColor: ColorScheme.of(context).surfaceContainer,
               extended: true,
-              destinations: navData
-                  .map((data) => NavigationRailDestination(
-                        icon: data["icon"] as Icon,
-                        label: Text(data["label"] as String),
-                      ))
-                  .toList(),
+              destinations:
+                  navData
+                      .map(
+                        (data) => NavigationRailDestination(
+                          icon: data["icon"] as Icon,
+                          label: Text(data["label"] as String),
+                        ),
+                      )
+                      .toList(),
               selectedIndex: widget.bottomNavRoute.currentIndex,
               onDestinationSelected: _onDestinationSelected,
             ),
@@ -128,34 +113,38 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
           ),
         ],
       ),
-      bottomNavigationBar: isPortrait
-          ? NavigationBar(
-              selectedIndex: widget.bottomNavRoute.currentIndex,
-              destinations: navData
-                  .map((data) => NavigationDestination(
-                        icon: data["icon"] as Icon,
-                        label: data["label"] as String,
-                      ))
-                  .toList(),
-              onDestinationSelected: _onDestinationSelected,
-            )
-          : null,
+      bottomNavigationBar:
+          isPortrait
+              ? NavigationBar(
+                selectedIndex: widget.bottomNavRoute.currentIndex,
+                destinations:
+                    navData
+                        .map(
+                          (data) => NavigationDestination(
+                            icon: data["icon"] as Icon,
+                            label: data["label"] as String,
+                          ),
+                        )
+                        .toList(),
+                onDestinationSelected: _onDestinationSelected,
+              )
+              : null,
     );
   }
 
   void _onDestinationSelected(value) {
     switch (value) {
       case 0:
-        _appRoute.onHome();
+        _appRoute.go("/app/home");
       case 1:
-        _appRoute.onFav();
+        _appRoute.go("/app/fav");
       case 2:
-        _appRoute.onAdd();
+        _appRoute.go("/app/add");
       case 3:
-        _appRoute.onSettings();
+        _appRoute.go("/app/settings");
       case 4:
         context.read<AppAuthProvider>().logoutUser();
-        _appRoute.onLogin();
+        _appRoute.go("/login");
     }
   }
 }

@@ -6,8 +6,9 @@ import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/firebase_auth_service.dart';
 import 'package:story_app/data/services/story_auth_service.dart';
 import 'package:story_app/static/auth_state.dart';
+import 'package:story_app/widget/safe_change_notifier.dart';
 
-class AppAuthProvider extends ChangeNotifier {
+class AppAuthProvider extends SafeChangeNotifier {
   final StoryAuthService storyAuthService;
   final FirebaseAuthService? firebaseAuthService;
   final SharedPreferencesService prefService;
@@ -21,9 +22,10 @@ class AppAuthProvider extends ChangeNotifier {
   AuthState _authState = AuthUnauthenticated();
   AuthState get authState => _authState;
 
-  UserProfile? get userProfile => (_authState is AuthAuthenticated)
-      ? (_authState as AuthAuthenticated).user
-      : null;
+  UserProfile? get userProfile =>
+      (_authState is AuthAuthenticated)
+          ? (_authState as AuthAuthenticated).user
+          : null;
 
   Future<void> registerUser(String name, String email, String password) async {
     _authState = AuthCreatingAccount();

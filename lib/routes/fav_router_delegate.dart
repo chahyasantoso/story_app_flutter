@@ -25,25 +25,22 @@ class FavRouterDelegate extends RouterDelegate<AppPath>
   }
 
   List<Page<dynamic>> get navStack => [
-        MaterialPage(
-          key: ValueKey("FavScreen"),
-          child: FavScreen(),
+    MaterialPage(key: ValueKey("FavScreen"), child: FavScreen()),
+    if (_appRoute.path is FavDetailPath)
+      MaterialPage(
+        key: ValueKey("DetailScreen"),
+        child: Builder(
+          builder: (context) {
+            final apiService = context.read<StoryApiService>();
+            final id = (_appRoute.path as FavDetailPath).id;
+            return ChangeNotifierProvider(
+              create: (context) => StoryDetailProvider(apiService),
+              child: DetailScreen(id: id),
+            );
+          },
         ),
-        if (_appRoute.path is FavDetailPath)
-          MaterialPage(
-            key: ValueKey("DetailScreen"),
-            child: Builder(
-              builder: (context) {
-                final apiService = context.read<StoryApiService>();
-                final id = (_appRoute.path as FavDetailPath).id;
-                return ChangeNotifierProvider(
-                  create: (context) => StoryDetailProvider(apiService),
-                  child: DetailScreen(id: id),
-                );
-              },
-            ),
-          ),
-      ];
+      ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +51,7 @@ class FavRouterDelegate extends RouterDelegate<AppPath>
         final topPage = navStack.last;
         if (topPage.key == page.key) {
           if (_appRoute.path is FavDetailPath) {
-            _appRoute.onFav();
+            _appRoute.goBack();
           }
         }
       },

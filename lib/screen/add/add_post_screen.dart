@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
+import 'package:story_app/screen/add/location_form_field.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
@@ -13,39 +14,68 @@ import 'package:story_app/widget/description_form_field.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
 import 'package:story_app/widget/loading_button.dart';
 import 'package:story_app/widget/story_image.dart';
+import 'package:story_app/widget/validation_exception.dart';
 import '/l10n/app_localizations.dart';
 
-class AddScreen extends StatefulWidget {
-  const AddScreen({super.key});
+class AddPostScreen extends StatefulWidget {
+  const AddPostScreen({super.key});
 
   @override
-  State<AddScreen> createState() => _AddScreenState();
+  State<AddPostScreen> createState() => _AddPostScreenState();
 }
 
-class _AddScreenState extends State<AddScreen> with SnackBarUtils {
+class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
   late StoryAddProvider _addProvider;
   final descriptionController = TextEditingController();
-
-  void _snackBarListener() {
-    final result = _addProvider.result;
-    if (result is ResultError) {
-      showSnackBar(context, result.message);
-    } else if (result is ResultSuccess) {
-      showSnackBar(context, result.message);
-    }
-  }
+  final descriptionFocusNode = FocusNode();
+  final locationController = TextEditingController();
+  final locationFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _addProvider = context.read<StoryAddProvider>();
-    _addProvider.addListener(_snackBarListener);
+
+    locationFocusNode.addListener(() {
+      final result = _addProvider.result;
+      final isError =
+          result is ResultError && result.error is LocationValidationException;
+      if (locationFocusNode.hasFocus && isError) _addProvider.reset();
+    });
+    descriptionFocusNode.addListener(() {
+      final result = _addProvider.result;
+      final isError =
+          result is ResultError &&
+          result.error is DescriptionValidationException;
+      if (descriptionFocusNode.hasFocus && isError) _addProvider.reset();
+    });
   }
 
   @override
   void dispose() {
-    _addProvider.removeListener(_snackBarListener);
+    descriptionController.dispose();
+    locationController.dispose();
+    descriptionFocusNode.dispose();
+    locationFocusNode.dispose();
     super.dispose();
+  }
+
+  AppLocalizations get appLocalizations =>
+      AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(title: Text(appLocalizations.titleAdd)),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FlexScrollLayout(
+          spacing: 16,
+          children: [buildImagePicker(), buildFormField()],
+        ),
+      ),
+    );
   }
 
   void handleGalleryView() async {
@@ -72,33 +102,6 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
     }
   }
 
-  void handlePost() async {
-    await _addProvider.addStory();
-    if (_addProvider.result is ResultSuccess) {
-      if (!mounted) return;
-      context.read<StoryListProvider>().getAllStories();
-      context.read<AppRoute>().onHome();
-    }
-  }
-
-  AppLocalizations get appLocalizations =>
-      AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: Text(appLocalizations.titleAdd)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FlexScrollLayout(
-          spacing: 16,
-          children: [buildImagePicker(), buildDescriptionField()],
-        ),
-      ),
-    );
-  }
-
   Widget buildImagePicker() {
     return Card(
       shape: RoundedRectangleBorder(
@@ -106,7 +109,7 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
-        alignment: Alignment.bottomRight,
+        alignment: Alignment.topRight,
         children: [
           StoryImage(image: buildImage()),
           Padding(
@@ -154,14 +157,54 @@ class _AddScreenState extends State<AddScreen> with SnackBarUtils {
     );
   }
 
-  Widget buildDescriptionField() {
-    final isLoading = context.watch<StoryAddProvider>().result is ResultLoading;
+  void handleLocationButtonTap() {
+    _addProvider.location = locationController.text;
+  }
+
+  void handlePost() async {
+    await _addProvider.addStory();
+    switch (_addProvider.result) {
+      case ResultSuccess(message: final message):
+        if (!mounted) return;
+        showSnackBar(context, message);
+        context.read<StoryListProvider>().getAllStories();
+        context.read<AppRoute>().go("/app/home");
+
+      case ResultError(message: final message):
+        if (!mounted) return;
+        showSnackBar(context, message);
+
+      default:
+    }
+  }
+
+  Widget buildFormField() {
+    final result = context.watch<StoryAddProvider>().result;
+    final isLoading = result is ResultLoading;
+    final isError = result is ResultError;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       spacing: 16,
       children: [
+        LocationFormField(
+          controller: locationController..text = _addProvider.location ?? "",
+          focusNode: locationFocusNode,
+          errorText:
+              isError && result.error is LocationValidationException
+                  ? result.message
+                  : null,
+          onChanged: (value) => _addProvider.location = value,
+          onLocationButtonTap: handleLocationButtonTap,
+          onMapButtonTap: () {},
+        ),
         DescriptionFormField(
           controller: descriptionController,
+          focusNode: descriptionFocusNode,
+          errorText:
+              isError && result.error is DescriptionValidationException
+                  ? result.message
+                  : null,
           onChanged: (value) => _addProvider.description = value,
         ),
         LoadingButton(

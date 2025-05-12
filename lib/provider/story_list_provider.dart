@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/static/result_state.dart';
+import 'package:story_app/widget/safe_change_notifier.dart';
 
-class StoryListProvider extends ChangeNotifier {
+class StoryListProvider extends SafeChangeNotifier {
   final StoryApiService _apiService;
   StoryListProvider(this._apiService);
 
@@ -26,10 +27,7 @@ class StoryListProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint("Error $e");
-      _result = ResultError(
-        error: e,
-        message: "Failed to get story list",
-      );
+      _result = ResultError(error: e, message: "Failed to get story list");
       notifyListeners();
     }
   }
@@ -57,28 +55,24 @@ class StoryListProvider extends ChangeNotifier {
     }
 
     try {
-      final response =
-          await _apiService.getAllStories(page: _currentPage, size: _pageSize);
+      final response = await _apiService.getAllStories(
+        page: _currentPage,
+        size: _pageSize,
+      );
       if (response.listStory.length < _pageSize) {
         _isNextPage = false;
       } else {
         _currentPage++;
       }
       _listStory = [..._listStory, ...response.listStory];
-      _result = ResultSuccess(
-        data: _listStory,
-        message: response.message,
-      );
+      _result = ResultSuccess(data: _listStory, message: response.message);
       notifyListeners();
     } on HttpException catch (e) {
       _result = ResultError(error: e, message: e.message);
       notifyListeners();
     } catch (e) {
       debugPrint("Error $e");
-      _result = ResultError(
-        error: e,
-        message: "Failed to get story list",
-      );
+      _result = ResultError(error: e, message: "Failed to get story list");
       notifyListeners();
     }
   }

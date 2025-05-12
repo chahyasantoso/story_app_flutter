@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
 
 class StoryMap extends StatefulWidget {
   final LatLng location;
-  final bool allowGesture;
+  final void Function(LatLng latlon)? onTap;
+  final void Function(LatLng latlon)? onLongPress;
   final WidgetBuilder? loadingBuilder;
   final WidgetBuilder? failureBuilder;
 
   const StoryMap({
     super.key,
     required this.location,
-    this.allowGesture = true,
+    this.onTap,
+    this.onLongPress,
     this.loadingBuilder,
     this.failureBuilder,
   });
@@ -25,19 +28,39 @@ class StoryMap extends StatefulWidget {
 
 class _StoryMapState extends State<StoryMap> {
   late StoryMapProvider mapProvider;
-  final Set<Marker> markers = {};
+  late GeocodingProvider geoProvider;
+
   bool isMapReady = false;
 
   @override
   void initState() {
     super.initState();
     mapProvider = context.read<StoryMapProvider>();
-    final marker = Marker(
-      markerId: MarkerId("story"),
-      position: widget.location,
-    );
-    markers.add(marker);
+    geoProvider = context.read<GeocodingProvider>();
   }
+
+  Marker get _marker => Marker(
+    markerId: MarkerId(widget.location.toString()),
+    position: widget.location,
+    infoWindow: buildInfoWindow(),
+    onTap: () => geoProvider.addressFromLatLng(widget.location),
+  );
+
+  InfoWindow buildInfoWindow() {
+    final geoProvider = context.watch<GeocodingProvider>();
+    return switch (geoProvider.state) {
+      ResultLoading() => InfoWindow(title: "Loading..."),
+      ResultSuccess<String>(data: final address) => InfoWindow(title: address),
+      ResultError() => InfoWindow(title: "Can't find address"),
+      _ => InfoWindow(title: "tap to geocode"),
+    };
+  }
+
+  //TODO:
+  //-perbaiki info window
+  //-perbaiki statenya addProvider
+  //-bikin falvor
+  //-bikin animasi
 
   @override
   Widget build(BuildContext context) {
@@ -46,25 +69,20 @@ class _StoryMapState extends State<StoryMap> {
 
     return Stack(
       children: [
-        Visibility(
-          visible: true,
-          child: GoogleMap(
-            key: mapProvider.mapKey,
-            initialCameraPosition: CameraPosition(
-              target: widget.location,
-              zoom: 15,
-            ),
-            onMapCreated: mapProvider.onMapCreated,
-            markers: markers,
-            zoomControlsEnabled: false,
-            myLocationButtonEnabled: false,
-            compassEnabled: false,
-            mapToolbarEnabled: false,
-            webGestureHandling:
-                widget.allowGesture
-                    ? WebGestureHandling.auto
-                    : WebGestureHandling.none,
+        GoogleMap(
+          key: mapProvider.mapKey,
+          initialCameraPosition: CameraPosition(
+            target: widget.location,
+            zoom: 18,
           ),
+          markers: {_marker},
+          zoomControlsEnabled: false,
+          myLocationButtonEnabled: false,
+          compassEnabled: false,
+          mapToolbarEnabled: false,
+          onMapCreated: mapProvider.onMapCreated,
+          onTap: widget.onTap,
+          onLongPress: widget.onLongPress,
         ),
         if (state is ResultLoading)
           widget.loadingBuilder?.call(context) ??

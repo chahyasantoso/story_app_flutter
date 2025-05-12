@@ -25,25 +25,22 @@ class HomeRouterDelegate extends RouterDelegate<AppPath>
   }
 
   List<Page<dynamic>> get navStack => [
-        MaterialPage(
-          key: ValueKey("HomeScreen"),
-          child: HomeScreen(),
+    MaterialPage(key: ValueKey("HomeScreen"), child: HomeScreen()),
+    if (_appRoute.path is HomeDetailPath)
+      MaterialPage(
+        key: ValueKey("DetailScreen"),
+        child: Builder(
+          builder: (context) {
+            final apiService = context.read<StoryApiService>();
+            final id = (_appRoute.path as HomeDetailPath).id;
+            return ChangeNotifierProvider(
+              create: (context) => StoryDetailProvider(apiService),
+              child: DetailScreen(id: id),
+            );
+          },
         ),
-        if (_appRoute.path is HomeDetailPath)
-          MaterialPage(
-            key: ValueKey("DetailScreen"),
-            child: Builder(
-              builder: (context) {
-                final apiService = context.read<StoryApiService>();
-                final id = (_appRoute.path as HomeDetailPath).id;
-                return ChangeNotifierProvider(
-                  create: (context) => StoryDetailProvider(apiService),
-                  child: DetailScreen(id: id),
-                );
-              },
-            ),
-          ),
-      ];
+      ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +51,7 @@ class HomeRouterDelegate extends RouterDelegate<AppPath>
         final topPage = navStack.last;
         if (topPage.key == page.key) {
           if (_appRoute.path is HomeDetailPath) {
-            _appRoute.onHome();
+            _appRoute.goBack();
           }
         }
       },
