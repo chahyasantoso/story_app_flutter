@@ -65,13 +65,27 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
         child: BottomNavWidget(bottomNavRoute: _bottomNavRoute),
       ),
     ),
-    if (_appRoute.path is AddPath) ..._addNavStack,
-  ];
-
-  List<Page<dynamic>> get _addNavStack => [
-    MaterialPage(key: ValueKey("AddPostScreen"), child: AddPostScreen()),
-    if (_appRoute.path is AddMapPath)
-      MaterialPage(key: ValueKey("AddMapScreen"), child: AddMapScreen()),
+    if (_appRoute.path is AddPath)
+      MaterialPage(
+        key: ValueKey("AddPostScreen"),
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create:
+                  (context) =>
+                      StoryAddProvider(context.read<StoryApiService>()),
+            ),
+            ChangeNotifierProvider(create: (_) => StoryMapProvider()),
+          ],
+          child: IndexedStack(
+            index: _appRoute.path is AddPostPath ? 0 : 1,
+            children: [
+              AddPostScreen(),
+              if (_appRoute.path is AddMapPath) AddMapScreen(),
+            ],
+          ),
+        ),
+      ),
   ];
 
   @override
@@ -79,30 +93,21 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
     final navStack =
         _appRoute.path is AuthenticatedPath ? _loggedInStack : _loggedOutStack;
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create:
-              (context) => StoryAddProvider(context.read<StoryApiService>()),
-        ),
-        ChangeNotifierProvider(create: (_) => StoryMapProvider()),
-      ],
-      child: Navigator(
-        key: _navigatorKey,
-        pages: navStack,
-        onDidRemovePage: (page) {
-          final topPage = navStack.last;
-          if (topPage.key == page.key) {
-            if (_appRoute.path is RegisterPath) {
-              _appRoute.goBack();
-            } else if (_appRoute.path is AddPostPath) {
-              _appRoute.changePath(_bottomNavRoute.currentPath);
-            } else if (_appRoute.path is AddMapPath) {
-              _appRoute.goBack();
-            }
+    return Navigator(
+      key: _navigatorKey,
+      pages: navStack,
+      onDidRemovePage: (page) {
+        final topPage = navStack.last;
+        if (topPage.key == page.key) {
+          if (_appRoute.path is RegisterPath) {
+            _appRoute.goBack();
+          } else if (_appRoute.path is AddPostPath) {
+            _appRoute.changePath(_bottomNavRoute.currentPath);
+          } else if (_appRoute.path is AddMapPath) {
+            _appRoute.goBack();
           }
-        },
-      ),
+        }
+      },
     );
   }
 

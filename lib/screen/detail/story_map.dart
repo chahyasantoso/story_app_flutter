@@ -58,7 +58,6 @@ class _StoryMapState extends State<StoryMap> {
 
   //TODO:
   //-perbaiki info window
-  //-perbaiki statenya addProvider
   //-bikin falvor
   //-bikin animasi
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
+import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/add/location_form_field.dart';
 import 'package:story_app/static/result_state.dart';
@@ -35,20 +37,6 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
   void initState() {
     super.initState();
     _addProvider = context.read<StoryAddProvider>();
-
-    locationFocusNode.addListener(() {
-      final result = _addProvider.result;
-      final isError =
-          result is ResultError && result.error is LocationValidationException;
-      if (locationFocusNode.hasFocus && isError) _addProvider.reset();
-    });
-    descriptionFocusNode.addListener(() {
-      final result = _addProvider.result;
-      final isError =
-          result is ResultError &&
-          result.error is DescriptionValidationException;
-      if (descriptionFocusNode.hasFocus && isError) _addProvider.reset();
-    });
   }
 
   @override
@@ -178,10 +166,27 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
     }
   }
 
+  void clearError<V extends ValidationException>() {
+    final result = _addProvider.result;
+    final isError = result is ResultError && result.error is V;
+    if (isError) _addProvider.reset();
+  }
+
+  String? buildErrorText<V extends ValidationException>() {
+    final result = _addProvider.result;
+    final isError = result is ResultError && result.error is V;
+    if (isError) return result.message;
+    return null;
+  }
+
+  void handleMapButtonTap() {
+    // final completer = Completer<String>();
+    // context.read<AppRoute>().go("/app/add/map");
+  }
+
   Widget buildFormField() {
     final result = context.watch<StoryAddProvider>().result;
     final isLoading = result is ResultLoading;
-    final isError = result is ResultError;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -189,22 +194,18 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
       children: [
         LocationFormField(
           controller: locationController..text = _addProvider.location ?? "",
-          focusNode: locationFocusNode,
-          errorText:
-              isError && result.error is LocationValidationException
-                  ? result.message
-                  : null,
           onChanged: (value) => _addProvider.location = value,
+          focusNode: locationFocusNode,
+          onFocus: clearError<LocationValidationException>,
+          errorText: buildErrorText<LocationValidationException>(),
           onLocationButtonTap: handleLocationButtonTap,
           onMapButtonTap: () {},
         ),
         DescriptionFormField(
           controller: descriptionController,
           focusNode: descriptionFocusNode,
-          errorText:
-              isError && result.error is DescriptionValidationException
-                  ? result.message
-                  : null,
+          onFocus: clearError<DescriptionValidationException>,
+          errorText: buildErrorText<DescriptionValidationException>(),
           onChanged: (value) => _addProvider.description = value,
         ),
         LoadingButton(

@@ -16,6 +16,7 @@ class LocationFormField extends StatefulWidget {
   final String? errorText;
   final FocusNode? focusNode;
   final void Function(String value)? onChanged;
+  final void Function()? onFocus;
   final void Function()? onLocationButtonTap;
   final void Function()? onMapButtonTap;
 
@@ -26,6 +27,7 @@ class LocationFormField extends StatefulWidget {
     this.errorText,
     this.focusNode,
     this.onChanged,
+    this.onFocus,
     this.onLocationButtonTap,
     this.onMapButtonTap,
   });
@@ -44,6 +46,9 @@ class _LocationFormFieldState extends State<LocationFormField>
     super.initState();
     locationProvider = context.read<LocationProvider>();
     geoProvider = context.read<GeocodingProvider>();
+    widget.focusNode?.addListener(() {
+      if (widget.focusNode?.hasFocus ?? false) widget.onFocus?.call();
+    });
     // ask for permission
   }
 
