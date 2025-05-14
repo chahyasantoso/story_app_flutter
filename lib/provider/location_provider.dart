@@ -1,4 +1,4 @@
-import 'package:geocoding/geocoding.dart' as geo;
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
@@ -17,7 +17,8 @@ class LocationProvider extends SafeChangeNotifier {
       _state = ResultSuccess(data: locationData);
       notifyListeners();
     } catch (e) {
-      _state = ResultError(error: e, message: e.toString());
+      debugPrint(e.toString());
+      _state = ResultError(error: e, message: "Can't find location");
       notifyListeners();
     }
   }

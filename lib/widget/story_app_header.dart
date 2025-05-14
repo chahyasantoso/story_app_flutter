@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/static/flavor_type.dart';
-import '/l10n/app_localizations.dart';
-import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
+import '/l10n/app_localizations.dart';
 
 class StoryAppHeader extends StatelessWidget {
   const StoryAppHeader({super.key});

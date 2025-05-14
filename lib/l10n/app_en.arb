@@ -39,5 +39,14 @@
     "labelFavorite": "Favorite",
     "labelAdd": "Add",
     "labelSettings": "Settings",
-    "labelSignOut": "Sign Out"
+    "labelSignOut": "Sign Out",
+    "messageMapLoadingError": "Failed to load map",
+    "messageLoading": "Loading...",
+    "messageAddressNotFound": "Can't find address",
+    "messageGetAddress": "Tap marker to get address",
+    "titleSelectLocation": "Select Location",
+    "locationLabelText": "Location",
+    "locationHintText": "Enter address or lat, lon coordinate",
+    "messageLocationNotFound": "Can't get location",
+    "messageUsingCoordinate": "Using coordinate"
 }

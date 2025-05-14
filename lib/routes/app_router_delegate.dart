@@ -3,17 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_map_provider.dart';
-import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_path.dart';
+import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/bottom_nav_widget.dart';
 import 'package:story_app/screen/add/add_map_screen.dart';
 import 'package:story_app/screen/add/add_post_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
-import 'package:story_app/static/flavor_type.dart';
-import '/l10n/app_localizations.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
+
+import '/l10n/app_localizations.dart';
 
 class AppRouterDelegate extends RouterDelegate<AppPath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin, SnackBarUtils {
@@ -70,13 +70,7 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
   ];
 
   List<Page<dynamic>> get _addStack => [
-    MaterialPage(
-      key: ValueKey("AddPostScreen"),
-      child: ChangeNotifierProvider(
-        create: (context) => StoryAddProvider(context.read<StoryApiService>()),
-        child: AddPostScreen(),
-      ),
-    ),
+    MaterialPage(key: ValueKey("AddPostScreen"), child: AddPostScreen()),
     if (_appRoute.path is AddMapPath)
       MaterialPage(key: ValueKey("AddMapScreen"), child: AddMapScreen()),
   ];
@@ -86,8 +80,14 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
     final navStack =
         _appRoute.path is AuthenticatedPath ? _loggedInStack : _loggedOutStack;
 
-    return ChangeNotifierProvider(
-      create: (context) => StoryMapProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create:
+              (context) => StoryAddProvider(context.read<StoryApiService>()),
+        ),
+        ChangeNotifierProvider(create: (context) => StoryMapProvider()),
+      ],
       child: Navigator(
         key: _navigatorKey,
         pages: navStack,

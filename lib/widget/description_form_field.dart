@@ -30,11 +30,11 @@ class _DescriptionFormFieldState extends State<DescriptionFormField> {
     });
   }
 
+  AppLocalizations get appLocalizations =>
+      AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
+
   @override
   Widget build(BuildContext context) {
-    final appLocalizations =
-        AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
-
     return TextFormField(
       controller: widget.controller,
       focusNode: widget.focusNode,

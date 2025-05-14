@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:story_app/data/model/user_profile.dart';
 import 'package:story_app/data/services/firebase_auth_service.dart';
 import 'package:story_app/static/auth_state.dart';

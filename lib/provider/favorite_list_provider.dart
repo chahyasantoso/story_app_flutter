@@ -13,7 +13,7 @@ class FavoriteListProvider extends SafeChangeNotifier {
   ResultState get result => _result;
 
   List<Story> get _favList {
-    if (_result case ResultSuccess(data: final favList)) {
+    if (_result case ResultSuccess<List<Story>>(data: final favList)) {
       final reversedList = favList.reversed.toList();
       return reversedList;
     }

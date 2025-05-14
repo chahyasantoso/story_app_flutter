@@ -1,12 +1,11 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
-import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/screen/add/location_form_field.dart';
 import 'package:story_app/static/flavor_type.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
@@ -14,8 +13,10 @@ import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/description_form_field.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
 import 'package:story_app/widget/loading_button.dart';
+import 'package:story_app/widget/location_form_field.dart';
 import 'package:story_app/widget/story_image.dart';
 import 'package:story_app/widget/validation_exception.dart';
+
 import '/l10n/app_localizations.dart';
 
 class AddPostScreen extends StatefulWidget {
@@ -35,11 +36,10 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
   @override
   void initState() {
     super.initState();
-    _addProvider = context.read<StoryAddProvider>();
-    locationController = TextEditingController(text: _addProvider.location);
-    descriptionController = TextEditingController(
-      text: _addProvider.description,
-    );
+    _addProvider = context.read<StoryAddProvider>()..initFields();
+
+    locationController = TextEditingController();
+    descriptionController = TextEditingController();
     locationController.addListener(() {
       _addProvider.location = locationController.text;
     });
@@ -154,7 +154,7 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
     );
   }
 
-  void handleLocationButtonTap() {
+  void setLocation() {
     _addProvider.location = locationController.text;
   }
 
@@ -164,7 +164,6 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
       case ResultSuccess(message: final message):
         if (!mounted) return;
         showSnackBar(context, message);
-        context.read<StoryListProvider>().getAllStories();
         context.read<AppRoute>().go("/app/home");
 
       case ResultError(message: final message):
@@ -175,22 +174,9 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
     }
   }
 
-  void clearError<V extends ValidationException>() {
-    final result = _addProvider.result;
-    final isError = result is ResultError && result.error is V;
-    if (isError) _addProvider.reset();
-  }
-
-  String? buildErrorText<V extends ValidationException>() {
-    final result = _addProvider.result;
-    final isError = result is ResultError && result.error is V;
-    if (isError) return result.message;
-    return null;
-  }
-
   Widget buildFormField() {
-    final result = context.watch<StoryAddProvider>().result;
-    final isLoading = result is ResultLoading;
+    final addResult = context.watch<StoryAddProvider>().result;
+    final isLoading = addResult is ResultLoading;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -200,15 +186,15 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
           LocationFormField(
             controller: locationController,
             focusNode: locationFocusNode,
-            onFocus: clearError<LocationValidationException>,
-            errorText: buildErrorText<LocationValidationException>(),
-            onLocationButtonTap: handleLocationButtonTap,
+            onFocus: _addProvider.clearError<LocationValidationException>,
+            errorText: _addProvider.getError<LocationValidationException>(),
+            onLocationButtonTap: setLocation,
           ),
         DescriptionFormField(
           controller: descriptionController,
           focusNode: descriptionFocusNode,
-          onFocus: clearError<DescriptionValidationException>,
-          errorText: buildErrorText<DescriptionValidationException>(),
+          onFocus: _addProvider.clearError<DescriptionValidationException>,
+          errorText: _addProvider.getError<DescriptionValidationException>(),
         ),
         LoadingButton(
           isLoading: isLoading,

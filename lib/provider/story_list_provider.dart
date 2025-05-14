@@ -39,11 +39,12 @@ class StoryListProvider extends SafeChangeNotifier {
   bool _isNextPage = true;
   bool get isNextPage => _isNextPage;
 
-  void reset() {
+  Future<void> initList() async {
     _result = ResultNone();
     _listStory = [];
     _currentPage = 1;
     _isNextPage = true;
+    await getNextStories();
   }
 
   Future<void> getNextStories() async {
@@ -53,7 +54,6 @@ class StoryListProvider extends SafeChangeNotifier {
     if (_currentPage == 1) {
       notifyListeners();
     }
-
     try {
       final response = await _apiService.getAllStories(
         page: _currentPage,

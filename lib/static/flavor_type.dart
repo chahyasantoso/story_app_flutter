@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 
 enum FlavorType { free, paid }
@@ -6,7 +5,7 @@ enum FlavorType { free, paid }
 class FlavorValues {
   final String titleApp;
 
-  const FlavorValues({this.titleApp = "Free StroryApp"});
+  const FlavorValues({this.titleApp = "StoryApp (default)"});
 }
 
 class FlavorConfig {
@@ -18,9 +17,9 @@ class FlavorConfig {
   static FlavorConfig? _instance;
 
   FlavorConfig({
-    this.flavor = FlavorType.free,
+    this.flavor = FlavorType.paid,
     this.storyColor = StoryColors.green,
-    this.assetBackground = "assets/images/background_stars_free.png",
+    this.assetBackground = "assets/images/background_stars_paid.png",
     this.values = const FlavorValues(),
   }) {
     _instance = this;

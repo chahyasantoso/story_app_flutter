@@ -340,6 +340,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Keluar'**
   String get labelSignOut;
+
+  /// No description provided for @messageMapLoadingError.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat peta'**
+  String get messageMapLoadingError;
+
+  /// No description provided for @messageLoading.
+  ///
+  /// In id, this message translates to:
+  /// **'Memuat...'**
+  String get messageLoading;
+
+  /// No description provided for @messageAddressNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dapat menemukan alamat'**
+  String get messageAddressNotFound;
+
+  /// No description provided for @messageGetAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk marker untuk menemukan alamat'**
+  String get messageGetAddress;
+
+  /// No description provided for @titleSelectLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Lokasi'**
+  String get titleSelectLocation;
+
+  /// No description provided for @locationLabelText.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi'**
+  String get locationLabelText;
+
+  /// No description provided for @locationHintText.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan alamat atau koordinat lintang, bujur'**
+  String get locationHintText;
+
+  /// No description provided for @messageLocationNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dapat menemukan lokasi'**
+  String get messageLocationNotFound;
+
+  /// No description provided for @messageUsingCoordinate.
+  ///
+  /// In id, this message translates to:
+  /// **'Menggunakan koordinat'**
+  String get messageUsingCoordinate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

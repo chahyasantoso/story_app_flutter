@@ -130,4 +130,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelSignOut => 'Sign Out';
+
+  @override
+  String get messageMapLoadingError => 'Failed to load map';
+
+  @override
+  String get messageLoading => 'Loading...';
+
+  @override
+  String get messageAddressNotFound => 'Can\'t find address';
+
+  @override
+  String get messageGetAddress => 'Tap marker to get address';
+
+  @override
+  String get titleSelectLocation => 'Select Location';
+
+  @override
+  String get locationLabelText => 'Location';
+
+  @override
+  String get locationHintText => 'Enter address or lat, lon coordinate';
+
+  @override
+  String get messageLocationNotFound => 'Can\'t get location';
+
+  @override
+  String get messageUsingCoordinate => 'Using coordinate';
 }

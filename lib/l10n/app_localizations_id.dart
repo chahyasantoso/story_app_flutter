@@ -130,4 +130,31 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get labelSignOut => 'Keluar';
+
+  @override
+  String get messageMapLoadingError => 'Gagal memuat peta';
+
+  @override
+  String get messageLoading => 'Memuat...';
+
+  @override
+  String get messageAddressNotFound => 'Tidak dapat menemukan alamat';
+
+  @override
+  String get messageGetAddress => 'Ketuk marker untuk menemukan alamat';
+
+  @override
+  String get titleSelectLocation => 'Pilih Lokasi';
+
+  @override
+  String get locationLabelText => 'Lokasi';
+
+  @override
+  String get locationHintText => 'Masukkan alamat atau koordinat lintang, bujur';
+
+  @override
+  String get messageLocationNotFound => 'Tidak dapat menemukan lokasi';
+
+  @override
+  String get messageUsingCoordinate => 'Menggunakan koordinat';
 }

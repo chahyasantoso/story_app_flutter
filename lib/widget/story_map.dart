@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:story_app/l10n/app_localizations.dart';
 import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/static/result_state.dart';
@@ -8,22 +10,22 @@ import 'package:story_app/widget/icon_message.dart';
 
 class StoryMap extends StatefulWidget {
   final LatLng location;
+  final void Function()? onMapInit;
+  final void Function(GoogleMapController controller)? onMapReady;
   final void Function(LatLng latlon)? onTap;
   final void Function(LatLng latlon)? onLongPress;
-  final void Function(CameraPosition position)? onCameraMove;
-  final void Function()? onCameraMoveStarted;
-  final void Function()? onCameraIdle;
+  final void Function()? onMarkerTap;
   final WidgetBuilder? loadingBuilder;
   final WidgetBuilder? failureBuilder;
 
   const StoryMap({
     super.key,
     required this.location,
+    this.onMapInit,
+    this.onMapReady,
     this.onTap,
     this.onLongPress,
-    this.onCameraIdle,
-    this.onCameraMove,
-    this.onCameraMoveStarted,
+    this.onMarkerTap,
     this.loadingBuilder,
     this.failureBuilder,
   });
@@ -36,14 +38,19 @@ class _StoryMapState extends State<StoryMap> {
   late StoryMapProvider mapProvider;
   late GeocodingProvider geoProvider;
 
-  bool isMapReady = false;
-
   @override
   void initState() {
     super.initState();
     mapProvider = context.read<StoryMapProvider>();
     geoProvider = context.read<GeocodingProvider>();
+    Future.microtask(() {
+      widget.onMapInit?.call();
+      mapProvider.start(widget.location);
+    });
   }
+
+  AppLocalizations get appLocalizations =>
+      AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));
 
   LatLng get mapLocation => mapProvider.location ?? widget.location;
 
@@ -51,49 +58,69 @@ class _StoryMapState extends State<StoryMap> {
     markerId: MarkerId(mapLocation.toString()),
     position: mapLocation,
     infoWindow: buildInfoWindow(),
-    onTap: () => geoProvider.addressFromLatLng(mapLocation),
+    onTap: handleMarkerTap,
   );
 
   InfoWindow buildInfoWindow() {
     final geoProvider = context.watch<GeocodingProvider>();
     return switch (geoProvider.state) {
-      ResultLoading() => InfoWindow(title: "Loading..."),
-      ResultSuccess<String>(data: final address) => InfoWindow(title: address),
-      ResultError() => InfoWindow(title: "Can't find address"),
-      _ => InfoWindow(title: "tap to geocode"),
+      ResultLoading() => InfoWindow(title: appLocalizations.messageLoading),
+      ResultSuccess<Placemark>(data: final place) => InfoWindow(
+        title: place.street,
+        snippet:
+            "${place.subLocality}, ${place.locality}, "
+            "${place.postalCode}, ${place.country}",
+      ),
+      ResultError() => InfoWindow(
+        title: appLocalizations.messageAddressNotFound,
+        snippet: "${mapLocation.latitude}, ${mapLocation.longitude}",
+      ),
+      _ => InfoWindow(
+        title: appLocalizations.messageGetAddress,
+        snippet: "${mapLocation.latitude}, ${mapLocation.longitude}",
+      ),
     };
   }
 
-  //TODO:
-  //-perbaiki info window
-  //-bikin falvor
-  //-bikin animasi
-  void onMapCreated(controller) {
+  void handleMarkerTap() {
+    geoProvider.getPlacemarkFromLatLng(mapLocation);
+    widget.onMarkerTap?.call();
+  }
+
+  void handleTap(position) {
+    widget.onTap?.call(position);
+  }
+
+  void handleMapCreated(GoogleMapController controller) {
     mapProvider.onMapCreated(controller);
-    mapProvider.location = mapLocation;
+    widget.onMapReady?.call(controller);
+  }
+
+  @override
+  void dispose() {
+    mapProvider.resetState();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final mapProvider = context.watch<StoryMapProvider>();
     final state = mapProvider.state;
+    final mapLocation = mapProvider.location ?? widget.location;
 
     return Stack(
       children: [
         GoogleMap(
           key: mapProvider.mapKey,
-          onMapCreated: onMapCreated,
+          onMapCreated: handleMapCreated,
           initialCameraPosition: CameraPosition(target: mapLocation, zoom: 18),
           markers: {_marker},
           zoomControlsEnabled: false,
           myLocationButtonEnabled: false,
           compassEnabled: false,
           mapToolbarEnabled: false,
-          onTap: widget.onTap,
+          onTap: handleTap,
           onLongPress: widget.onLongPress,
-          onCameraMoveStarted: widget.onCameraMoveStarted,
-          onCameraMove: widget.onCameraMove,
-          onCameraIdle: widget.onCameraIdle,
         ),
         if (state is ResultLoading)
           widget.loadingBuilder?.call(context) ??
@@ -107,10 +134,10 @@ class _StoryMapState extends State<StoryMap> {
                 color: ColorScheme.of(context).surfaceContainer,
                 child: Center(
                   child: IconMessage.error(
-                    "Failed to load map",
+                    appLocalizations.messageMapLoadingError,
                     button: FilledButton(
                       onPressed: mapProvider.retry,
-                      child: Text("Try again"),
+                      child: Text(appLocalizations.messageTryAgain),
                     ),
                   ),
                 ),

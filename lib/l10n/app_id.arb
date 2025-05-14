@@ -39,6 +39,15 @@
     "labelFavorite": "Favorit",
     "labelAdd": "Tambah",
     "labelSettings": "Pengaturan",
-    "labelSignOut": "Keluar"
+    "labelSignOut": "Keluar",
+    "messageMapLoadingError": "Gagal memuat peta",
+    "messageLoading": "Memuat...",
+    "messageAddressNotFound": "Tidak dapat menemukan alamat",
+    "messageGetAddress": "Ketuk marker untuk menemukan alamat",
+    "titleSelectLocation": "Pilih Lokasi",
+    "locationLabelText": "Lokasi",
+    "locationHintText": "Masukkan alamat atau koordinat lintang, bujur",
+    "messageLocationNotFound": "Tidak dapat menemukan lokasi",
+    "messageUsingCoordinate": "Menggunakan koordinat"
   }
   

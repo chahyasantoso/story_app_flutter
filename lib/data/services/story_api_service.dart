@@ -1,14 +1,14 @@
 import "dart:convert";
 import "dart:io";
 import "dart:typed_data";
+
 import "package:http/http.dart" as http;
-import "package:story_app/data/model/story.dart";
 import "package:story_app/data/model/story_add_response.dart";
 import "package:story_app/data/model/story_detail_response.dart";
 import "package:story_app/data/model/story_list_response.dart";
+import "package:story_app/static/api_url.dart";
 
 class StoryApiService {
-  static const String _baseUrl = "https://story-api.dicoding.dev/v1";
   final String token;
   StoryApiService(this.token);
 
@@ -19,10 +19,7 @@ class StoryApiService {
     double? lat,
     double? lon,
   }) async {
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse("$_baseUrl/stories"),
-    );
+    final request = http.MultipartRequest('POST', Uri.parse("$apiUrl/stories"));
     final multipartFile = http.MultipartFile.fromBytes(
       "photo",
       imageBytes,
@@ -61,92 +58,91 @@ class StoryApiService {
     int? size,
     int? location = 0,
   }) async {
-    return StoryListResponse(
-      error: false,
-      message: "success",
-      listStory: [
-        Story(
-          id: "01",
-          name: "Story1",
-          description: "description1",
-          photoUrl: "xxx",
-          createdAt: DateTime.now(),
-          lat: 7.2575,
-          lon: 112.7521,
-        ),
-        Story(
-          id: "02",
-          name: "Story2",
-          description: "description1",
-          photoUrl: "xxx",
-          createdAt: DateTime.now(),
-          lat: 7.2575,
-          lon: 112.7521,
-        ),
-        Story(
-          id: "03",
-          name: "Story3",
-          description: "description1",
-          photoUrl: "xxx",
-          createdAt: DateTime.now(),
-          lat: 7.2575,
-          lon: 112.7521,
-        ),
-        Story(
-          id: "04",
-          name: "Story4",
-          description: "description1",
-          photoUrl: "xxx",
-          createdAt: DateTime.now(),
-          lat: 7.2575,
-          lon: 112.7521,
-        ),
-      ],
-    );
-    // final queryParam = {
-    //   if (page != null) "page": page.toString(),
-    //   if (size != null) "size": size.toString(),
-    //   "location": location.toString(),
-    // };
-    // final uri = Uri.parse(_baseUrl);
-    // final response = await http.get(
-    //   Uri.https(uri.authority, "${uri.path}/stories", queryParam),
-    //   headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+    // return StoryListResponse(
+    //   error: false,
+    //   message: "success",
+    //   listStory: [
+    //     Story(
+    //       id: "01",
+    //       name: "Story1",
+    //       description: "description1",
+    //       photoUrl: "xxx",
+    //       createdAt: DateTime.now(),
+    //       lat: 7.2575,
+    //       lon: 112.7521,
+    //     ),
+    //     Story(
+    //       id: "02",
+    //       name: "Story2",
+    //       description: "description1",
+    //       photoUrl: "xxx",
+    //       createdAt: DateTime.now(),
+    //       lat: 7.2575,
+    //       lon: 112.7521,
+    //     ),
+    //     Story(
+    //       id: "03",
+    //       name: "Story3",
+    //       description: "description1",
+    //       photoUrl: "xxx",
+    //       createdAt: DateTime.now(),
+    //       lat: 7.2575,
+    //       lon: 112.7521,
+    //     ),
+    //     Story(
+    //       id: "04",
+    //       name: "Story4",
+    //       description: "description1",
+    //       photoUrl: "xxx",
+    //       createdAt: DateTime.now(),
+    //       lat: 7.2575,
+    //       lon: 112.7521,
+    //     ),
+    //   ],
     // );
+    final queryParam = {
+      if (page != null) "page": page.toString(),
+      if (size != null) "size": size.toString(),
+      "location": location.toString(),
+    };
+    final uri = Uri.parse(apiUrl);
+    final response = await http.get(
+      Uri.https(uri.authority, "${uri.path}/stories", queryParam),
+      headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+    );
 
-    // final jsonBody = jsonDecode(response.body);
-    // if (response.statusCode == 200) {
-    //   return StoryListResponse.fromJson(jsonBody);
-    // } else {
-
-    //   throw HttpException(jsonBody["message"]);
-    // }
+    final jsonBody = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return StoryListResponse.fromJson(jsonBody);
+    } else {
+      throw HttpException(jsonBody["message"]);
+    }
   }
 
   Future<StoryDetailResponse> getStoryDetail(String id) async {
-    return StoryDetailResponse(
-      error: false,
-      message: "ok",
-      story: Story(
-        id: "01",
-        name: "Story1",
-        description: "description1",
-        photoUrl: "xxx",
-        createdAt: DateTime.now(),
-        lat: -7.250445,
-        lon: 112.7521,
-      ),
-    );
-    // final response = await http.get(
-    //   Uri.parse("$_baseUrl/stories/$id"),
-    //   headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+    // return StoryDetailResponse(
+    //   error: false,
+    //   message: "ok",
+    //   story: Story(
+    //     id: "01",
+    //     name: "Story1",
+    //     description: "description1",
+    //     photoUrl: "xxx",
+    //     createdAt: DateTime.now(),
+    //     lat: -7.250445,
+    //     lon: 112.7521,
+    //   ),
     // );
+    final response = await http.get(
+      Uri.parse("$apiUrl/stories/$id"),
+      headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+    );
 
-    // final jsonBody = jsonDecode(response.body);
-    // if (response.statusCode == 200) {
-    //   return StoryDetailResponse.fromJson(jsonBody);
-    // } else {
-    //   throw HttpException(jsonBody["message"]);
-    // }
+    final jsonBody = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return StoryDetailResponse.fromJson(jsonBody);
+    } else {
+      throw HttpException(jsonBody["message"]);
+    }
   }
 }

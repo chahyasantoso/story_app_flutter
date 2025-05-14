@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/screen/detail/story_detail_sheet.dart';
-import 'package:story_app/screen/detail/story_map.dart';
-import 'package:story_app/static/result_state.dart';
+import 'package:story_app/static/map_utils.dart';
+import 'package:story_app/widget/story_map.dart';
 
 class StoryDetailMap extends StatefulWidget {
   final Story data;
@@ -15,7 +15,7 @@ class StoryDetailMap extends StatefulWidget {
   State<StoryDetailMap> createState() => _StoryDetailMapState();
 }
 
-class _StoryDetailMapState extends State<StoryDetailMap> {
+class _StoryDetailMapState extends State<StoryDetailMap> with MapUtils {
   late LatLng storyLocation;
   late StoryMapProvider mapProvider;
   final sheetController = DraggableScrollableController();
@@ -27,7 +27,8 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
   void initState() {
     super.initState();
     mapProvider = context.read<StoryMapProvider>();
-    mapProvider.addListener(_animateCamera);
+    storyLocation =
+        latLngFromDouble(widget.data.lat, widget.data.lon) ?? defaultLatLng;
 
     sheetController.addListener(() {
       final size = sheetController.size;
@@ -37,12 +38,6 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
               : size == initialChildSize || size == maxChildSize;
       if (shouldAnimate) _animateCamera();
     });
-
-    final lat = widget.data.lat;
-    final lon = widget.data.lon;
-    final isLocationValid = lat != null && lon != null;
-    if (!isLocationValid) return;
-    storyLocation = LatLng(lat, lon);
   }
 
   @override
@@ -56,18 +51,14 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
       MediaQuery.of(context).orientation == Orientation.portrait;
 
   void _animateCamera() async {
-    final state = mapProvider.state;
-    if (state is ResultSuccess) {
-      final size = context.size;
-      if (size == null) return;
+    final size = context.size;
+    if (size == null) return;
 
-      final dx = isPortrait ? 0.0 : size.width * 0.25;
-      final dy = isPortrait ? size.height * 0.25 : 0.0;
+    final dx = isPortrait ? 0.0 : size.width * 0.25;
+    final dy = isPortrait ? size.height * 0.25 : 0.0;
 
-      final GoogleMapController controller = state.data;
-      await controller.moveCamera(CameraUpdate.newLatLng(storyLocation));
-      await controller.animateCamera(CameraUpdate.scrollBy(dx, dy));
-    }
+    mapProvider.controller?.moveCamera(CameraUpdate.newLatLng(storyLocation));
+    mapProvider.controller?.animateCamera(CameraUpdate.scrollBy(dx, dy));
   }
 
   void _animateSheet() {
@@ -86,7 +77,13 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
         children: [
           Listener(
             onPointerDown: (_) => _animateSheet(),
-            child: StoryMap(location: storyLocation),
+            child: StoryMap(
+              location: storyLocation,
+              onMarkerTap: _animateCamera,
+              onMapReady: (_) {
+                _animateCamera();
+              },
+            ),
           ),
           StoryDetailSheet(
             sheetController: sheetController,

@@ -29,7 +29,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 void main() async {
   FlavorConfig(
     flavor: FlavorType.paid,
-    storyColor: StoryColors.orange,
+    storyColor: StoryColors.green,
     assetBackground: "assets/images/background_stars_paid.png",
     values: const FlavorValues(titleApp: "StoryApp (paid version)"),
   );

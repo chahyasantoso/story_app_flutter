@@ -1,13 +1,15 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:story_app/data/services/story_api_service.dart';
+import 'package:story_app/static/map_utils.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 import 'package:story_app/widget/validation_exception.dart';
 
-class StoryAddProvider extends SafeChangeNotifier {
+class StoryAddProvider extends SafeChangeNotifier with MapUtils {
   final StoryApiService _apiService;
   StoryAddProvider(this._apiService);
 
@@ -18,13 +20,6 @@ class StoryAddProvider extends SafeChangeNotifier {
     notifyListeners();
   }
 
-  String? _description;
-  String? get description => _description;
-  set description(String? text) {
-    _description = text;
-    notifyListeners();
-  }
-
   String? _location;
   String? get location => _location;
   set location(String? address) {
@@ -32,8 +27,49 @@ class StoryAddProvider extends SafeChangeNotifier {
     notifyListeners();
   }
 
+  String? _description;
+  String? get description => _description;
+  set description(String? text) {
+    _description = text;
+    notifyListeners();
+  }
+
   ResultState _result = ResultNone();
   ResultState get result => _result;
+
+  void initFields() {
+    _imageFile = null;
+    _location = null;
+    _description = null;
+    _result = ResultNone();
+  }
+
+  Future<void> addStory() async {
+    _result = ResultLoading();
+    notifyListeners();
+    try {
+      final (imageBytes, filename) = await _validateImageFile();
+      final (lat, lon) = await _validateLocation();
+      final description = _validateDescription();
+
+      final result = await _apiService.addStory(
+        imageBytes,
+        filename,
+        description,
+        lat: lat,
+        lon: lon,
+      );
+      _result = ResultSuccess(data: null, message: result.message);
+      notifyListeners();
+    } on ValidationException catch (e) {
+      _result = ResultError(error: e, message: e.message);
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error $e");
+      _result = ResultError(error: e, message: "Failed to post story");
+      notifyListeners();
+    }
+  }
 
   final maxFileSize = 1024 * 1024;
   Future<Uint8List> _compressImage(XFile file) async {
@@ -72,20 +108,7 @@ class StoryAddProvider extends SafeChangeNotifier {
     return desc;
   }
 
-  LatLng? _tryParseLatLng(String input) {
-    final parts = input.split(',');
-    if (parts.length != 2) return null;
-
-    final lat = double.tryParse(parts[0].trim());
-    final lon = double.tryParse(parts[1].trim());
-
-    if (lat == null || lon == null) return null;
-    if (lat < -90 || lat > 90) return null;
-    if (lon < -180 || lon > 180) return null;
-    return LatLng(lat, lon);
-  }
-
-  Future<LatLng?> _tryParseAddress(String input) async {
+  Future<LatLng?> _parseAddress(String input) async {
     try {
       final result = await locationFromAddress(input);
       if (result.isEmpty) return null;
@@ -97,43 +120,32 @@ class StoryAddProvider extends SafeChangeNotifier {
   }
 
   Future<(double?, double?)> _validateLocation() async {
-    final loc = _location;
-    if (loc == null || loc.trim().isEmpty) {
+    final location = _location;
+    if (location == null || location.trim().isEmpty) {
       return (null, null);
     }
-    LatLng? coordinates = _tryParseLatLng(loc);
-    coordinates ??= await _tryParseAddress(loc);
+    LatLng? coordinates = parseLatLng(location);
+    coordinates ??= await _parseAddress(location);
     if (coordinates == null) {
       throw LocationValidationException("Can't find address");
     }
     return (coordinates.latitude, coordinates.longitude);
   }
 
-  Future<void> addStory() async {
-    _result = ResultLoading();
-    notifyListeners();
-    try {
-      final (imageBytes, filename) = await _validateImageFile();
-      final (lat, lon) = await _validateLocation();
-      final description = _validateDescription();
-
-      final result = await _apiService.addStory(
-        imageBytes,
-        filename,
-        description,
-        lat: lat,
-        lon: lon,
-      );
-      _result = ResultSuccess(data: null, message: result.message);
-      notifyListeners();
-    } catch (e) {
-      _result = ResultError(error: e, message: e.toString());
+  void clearError<V extends ValidationException>() {
+    if (_result case ResultError(error: final error) when error is V) {
+      _result = ResultNone();
       notifyListeners();
     }
   }
 
-  void reset() {
-    _result = ResultNone();
-    notifyListeners();
+  String? getError<V extends ValidationException>() {
+    if (_result case ResultError(
+      error: final error,
+      message: final message,
+    ) when error is V) {
+      return message;
+    }
+    return null;
   }
 }

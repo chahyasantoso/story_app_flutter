@@ -46,7 +46,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     });
   }
 
-  void handleFavorite() async {
+  void handleFavoritePressed() async {
     setState(() {
       _isTapped = true;
     });
@@ -78,7 +78,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       curve: Curves.easeInOut,
       child: IconButton.filledTonal(
         icon: _isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-        onPressed: isLoading && _isTapped ? null : handleFavorite,
+        onPressed: isLoading && _isTapped ? null : handleFavoritePressed,
         iconSize: 30,
         color: StoryColors.orange.color,
       ),

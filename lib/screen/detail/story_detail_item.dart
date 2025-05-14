@@ -64,10 +64,7 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
           style: StoryTextStyles.labelMedium.copyWith(
             color: ColorScheme.of(context).primary,
           ),
-          child: Row(
-            spacing: 4,
-            children: [...buildDateTime(), ...buildLocation(), Spacer()],
-          ),
+          child: Row(spacing: 4, children: [...buildDateTime(), Spacer()]),
         ),
         RichText(
           text: TextSpan(
@@ -80,10 +77,7 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
                 style: StoryTextStyles.labelLarge,
               ),
               const WidgetSpan(child: SizedBox(width: 8)),
-              TextSpan(
-                text:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris rutrum dui ut ligula bibendum, vitae porttitor nulla vestibulum. Donec pellentesque lacus at ullamcorper pulvinar. Cras quam metus, eleifend luctus fringilla et, consectetur id ipsum. Curabitur tristique tellus sit amet ex ullamcorper hendrerit. Vivamus ac velit a erat dapibus suscipit. Pellentesque aliquam tempor leo malesuada consequat. Sed in sodales ipsum. Vestibulum vestibulum enim est, id molestie eros fermentum a. Integer interdum urna velit, id mollis massa aliquam non. Curabitur sit amet nulla pretium, efficitur magna eu, ultrices lectus.",
-              ),
+              TextSpan(text: widget.data.description),
             ],
           ),
         ),
@@ -98,22 +92,6 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
       Icon(Icons.calendar_month_outlined),
       Expanded(
         child: Text(dateString, maxLines: 1, overflow: TextOverflow.ellipsis),
-      ),
-    ];
-  }
-
-  List<Widget> buildLocation() {
-    final isLocation = widget.data.lat != null && widget.data.lon != null;
-    if (!isLocation) return [];
-
-    return [
-      Icon(Icons.map_outlined),
-      Expanded(
-        child: Text(
-          "Lat ${widget.data.lat} Lon ${widget.data.lon}",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
       ),
     ];
   }

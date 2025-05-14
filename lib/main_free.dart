@@ -29,7 +29,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 void main() async {
   FlavorConfig(
     flavor: FlavorType.free,
-    storyColor: StoryColors.green,
+    storyColor: StoryColors.orange,
     assetBackground: "assets/images/background_stars_free.png",
     values: const FlavorValues(titleApp: "StoryApp (free version)"),
   );
