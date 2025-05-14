@@ -97,12 +97,12 @@ class StoryAddProvider extends SafeChangeNotifier {
   }
 
   Future<(double?, double?)> _validateLocation() async {
-    final locationString = _location;
-    if (locationString == null || locationString.trim().isEmpty) {
+    final loc = _location;
+    if (loc == null || loc.trim().isEmpty) {
       return (null, null);
     }
-    LatLng? coordinates = _tryParseLatLng(locationString);
-    coordinates ??= await _tryParseAddress(locationString);
+    LatLng? coordinates = _tryParseLatLng(loc);
+    coordinates ??= await _tryParseAddress(loc);
     if (coordinates == null) {
       throw LocationValidationException("Can't find address");
     }

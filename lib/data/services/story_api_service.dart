@@ -74,6 +74,33 @@ class StoryApiService {
           lat: 7.2575,
           lon: 112.7521,
         ),
+        Story(
+          id: "02",
+          name: "Story2",
+          description: "description1",
+          photoUrl: "xxx",
+          createdAt: DateTime.now(),
+          lat: 7.2575,
+          lon: 112.7521,
+        ),
+        Story(
+          id: "03",
+          name: "Story3",
+          description: "description1",
+          photoUrl: "xxx",
+          createdAt: DateTime.now(),
+          lat: 7.2575,
+          lon: 112.7521,
+        ),
+        Story(
+          id: "04",
+          name: "Story4",
+          description: "description1",
+          photoUrl: "xxx",
+          createdAt: DateTime.now(),
+          lat: 7.2575,
+          lon: 112.7521,
+        ),
       ],
     );
     // final queryParam = {

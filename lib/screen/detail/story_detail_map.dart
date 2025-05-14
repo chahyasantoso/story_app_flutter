@@ -19,19 +19,30 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
   late LatLng storyLocation;
   late StoryMapProvider mapProvider;
   final sheetController = DraggableScrollableController();
-  final minChildSize = 0.25;
+  final minChildSize = 0.15;
+  final initialChildSize = 0.5;
   final maxChildSize = 0.9;
 
   @override
   void initState() {
     super.initState();
+    mapProvider = context.read<StoryMapProvider>();
+    mapProvider.addListener(_animateCamera);
+
+    sheetController.addListener(() {
+      final size = sheetController.size;
+      final shouldAnimate =
+          isPortrait
+              ? size == initialChildSize
+              : size == initialChildSize || size == maxChildSize;
+      if (shouldAnimate) _animateCamera();
+    });
+
     final lat = widget.data.lat;
     final lon = widget.data.lon;
     final isLocationValid = lat != null && lon != null;
     if (!isLocationValid) return;
     storyLocation = LatLng(lat, lon);
-    mapProvider = context.read<StoryMapProvider>();
-    mapProvider.addListener(_animateCamera);
   }
 
   @override
@@ -41,14 +52,17 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
     super.dispose();
   }
 
+  bool get isPortrait =>
+      MediaQuery.of(context).orientation == Orientation.portrait;
+
   void _animateCamera() async {
     final state = mapProvider.state;
     if (state is ResultSuccess) {
       final size = context.size;
       if (size == null) return;
 
-      final dx = size.width * 0.25;
-      final dy = 0.0;
+      final dx = isPortrait ? 0.0 : size.width * 0.25;
+      final dy = isPortrait ? size.height * 0.25 : 0.0;
 
       final GoogleMapController controller = state.data;
       await controller.moveCamera(CameraUpdate.newLatLng(storyLocation));
@@ -74,14 +88,12 @@ class _StoryDetailMapState extends State<StoryDetailMap> {
             onPointerDown: (_) => _animateSheet(),
             child: StoryMap(location: storyLocation),
           ),
-          Listener(
-            onPointerDown: (_) => _animateCamera(),
-            child: StoryDetailSheet(
-              sheetController: sheetController,
-              data: widget.data,
-              minChildSize: minChildSize,
-              maxChildSize: maxChildSize,
-            ),
+          StoryDetailSheet(
+            sheetController: sheetController,
+            data: widget.data,
+            initialChildSize: initialChildSize,
+            minChildSize: minChildSize,
+            maxChildSize: maxChildSize,
           ),
         ],
       ),

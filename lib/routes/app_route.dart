@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:story_app/routes/app_path.dart';
+import 'package:story_app/static/flavor_type.dart';
 
 class AppRoute extends ChangeNotifier {
   AppPath? Function(AppPath)? redirect;
@@ -11,6 +12,9 @@ class AppRoute extends ChangeNotifier {
 
   void changePath(AppPath newPath) {
     _path = redirect?.call(newPath) ?? newPath;
+    if (FlavorConfig.instance.flavor == FlavorType.free) {
+      if (path is AddMapPath) _path = UnknownPath();
+    }
     notifyListeners();
   }
 

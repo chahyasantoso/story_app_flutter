@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:story_app/static/flavor_type.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
-import '../colors/story_colors.dart';
 
 class StoryTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      colorSchemeSeed: StoryColors.green.color,
+      colorSchemeSeed: FlavorConfig.instance.storyColor.color,
       brightness: Brightness.light,
       textTheme: _textTheme,
       useMaterial3: true,
@@ -14,7 +14,7 @@ class StoryTheme {
 
   static ThemeData get darkTheme {
     return ThemeData(
-      colorSchemeSeed: StoryColors.green.color,
+      colorSchemeSeed: FlavorConfig.instance.storyColor.color,
       brightness: Brightness.dark,
       textTheme: _textTheme,
       useMaterial3: true,

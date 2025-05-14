@@ -75,9 +75,11 @@ class _StoryDetailSheetState extends State<StoryDetailSheet> {
   void onTap() {
     final currentSize = widget.sheetController.size;
     if (currentSize == widget.minChildSize) {
+      animateTo(widget.initialChildSize);
+    } else if (currentSize == widget.initialChildSize) {
       animateTo(widget.maxChildSize);
     } else {
-      animateTo(widget.minChildSize);
+      animateTo(widget.initialChildSize);
     }
   }
 

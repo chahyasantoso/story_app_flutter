@@ -38,4 +38,15 @@ class StoryMapProvider extends SafeChangeNotifier {
       _completer.complete(controller);
     }
   }
+
+  LatLng? _location;
+  LatLng? get location => _location;
+  set location(LatLng? newLocation) {
+    _location = newLocation;
+    notifyListeners();
+  }
+
+  void initLocation(LatLng location) {
+    _location = location;
+  }
 }

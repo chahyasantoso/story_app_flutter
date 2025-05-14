@@ -6,16 +6,15 @@ import 'package:story_app/widget/story_network_image.dart';
 
 class StoryListItem extends StatelessWidget {
   final Story data;
-  const StoryListItem({super.key, required this.data});
+  final Future<void> Function(bool isFavorite)? onFavButtonTap;
+  const StoryListItem({super.key, required this.data, this.onFavButtonTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.all(8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       clipBehavior: Clip.antiAlias,
       child: AspectRatio(
@@ -45,7 +44,7 @@ class StoryListItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  FavoriteButton(data: data),
+                  FavoriteButton(data: data, onTap: onFavButtonTap),
                 ],
               ),
             ),

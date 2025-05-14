@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:story_app/static/flavor_type.dart';
 import '/l10n/app_localizations.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
@@ -13,14 +14,13 @@ class StoryAppHeader extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: StoryColors.green.color,
         image: DecorationImage(
-          image: AssetImage("assets/images/background_stars.png"),
+          image: AssetImage(FlavorConfig.instance.assetBackground),
           fit: BoxFit.cover,
         ),
       ),
       child: Container(
-        color: StoryColors.green.color.withAlpha(200),
+        color: FlavorConfig.instance.storyColor.color.withAlpha(200),
         child: Center(
           child: SingleChildScrollView(
             child: Padding(

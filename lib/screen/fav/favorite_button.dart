@@ -8,7 +8,8 @@ import 'package:story_app/style/colors/story_colors.dart';
 
 class FavoriteButton extends StatefulWidget {
   final Story data;
-  const FavoriteButton({super.key, required this.data});
+  final Future<void> Function(bool isFavorite)? onTap;
+  const FavoriteButton({super.key, required this.data, this.onTap});
 
   @override
   State<FavoriteButton> createState() => _FavoriteButtonState();
@@ -18,55 +19,69 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   late FavoriteButtonProvider _buttonProvider;
   late FavoriteListProvider _listProvider;
   bool _isFavorite = false;
-
-  void _isFavListener() {
-    getFav();
-  }
-
-  void getFav() async {
-    final isFav = await _buttonProvider.isFavorite(widget.data.id);
-    if (!mounted) return;
-    setState(() {
-      _isFavorite = isFav;
-    });
-  }
+  bool _isTapped = false;
 
   @override
   void initState() {
     super.initState();
-    _buttonProvider = context.read<FavoriteButtonProvider>();
     _listProvider = context.read<FavoriteListProvider>();
-    _listProvider.addListener(_isFavListener);
-    Future.microtask(getFav);
+    _buttonProvider = context.read<FavoriteButtonProvider>();
+    _listProvider.addListener(_getFavorite);
+    _getFavorite();
   }
 
   @override
   void dispose() {
-    _listProvider.removeListener(_isFavListener);
+    _listProvider.removeListener(_getFavorite);
     super.dispose();
   }
 
+  void _getFavorite() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isFav = _listProvider.isFavorite(widget.data.id);
+      if (!mounted) return;
+      setState(() {
+        _isFavorite = isFav;
+      });
+    });
+  }
+
   void handleFavorite() async {
+    setState(() {
+      _isTapped = true;
+    });
+    await widget.onTap?.call(_isFavorite);
     if (_isFavorite) {
       await _buttonProvider.removeFavoriteByStoryId(widget.data.id);
       if (_buttonProvider.result is ResultSuccess) {
-        await _listProvider.getAll();
+        _listProvider.removeById(widget.data.id);
       }
     } else {
       await _buttonProvider.addFavorite(widget.data);
       if (_buttonProvider.result is ResultSuccess) {
-        await _listProvider.getAll();
+        _listProvider.addStory(widget.data);
       }
     }
+    setState(() {
+      _isTapped = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return IconButton.filledTonal(
-      icon: _isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-      onPressed: handleFavorite,
-      iconSize: 30,
-      color: StoryColors.orange.color,
+    final isLoading =
+        context.watch<FavoriteButtonProvider>().result is ResultLoading;
+
+    return AnimatedScale(
+      duration: Duration(milliseconds: 100),
+      scale: isLoading && _isTapped ? 0 : 1,
+      curve: Curves.easeInOut,
+      child: IconButton.filledTonal(
+        icon: _isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+        onPressed: isLoading && _isTapped ? null : handleFavorite,
+        iconSize: 30,
+        color: StoryColors.orange.color,
+      ),
     );
   }
 }

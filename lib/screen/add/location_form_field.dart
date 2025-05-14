@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/l10n/app_localizations.dart';
 import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/location_provider.dart';
+import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
@@ -40,28 +42,48 @@ class _LocationFormFieldState extends State<LocationFormField>
     with SnackBarUtils {
   late LocationProvider locationProvider;
   late GeocodingProvider geoProvider;
+  late StoryMapProvider mapProvider;
 
   @override
   void initState() {
     super.initState();
     locationProvider = context.read<LocationProvider>();
     geoProvider = context.read<GeocodingProvider>();
+    mapProvider = context.read<StoryMapProvider>();
+
     widget.focusNode?.addListener(() {
       if (widget.focusNode?.hasFocus ?? false) widget.onFocus?.call();
     });
+    mapProvider.addListener(locationListener);
     // ask for permission
+  }
+
+  @override
+  void dispose() {
+    mapProvider.removeListener(locationListener);
+    super.dispose();
+  }
+
+  void locationListener() {
+    final (lat, lon) = (
+      mapProvider.location?.latitude,
+      mapProvider.location?.longitude,
+    );
+    if (lat == null || lon == null || !mounted) return;
+
+    final text = "$lat, $lon";
+    if (!mounted) return;
+    widget.controller.text = text;
   }
 
   Future<void> getCurrentLocationAddress() async {
     await locationProvider.getCurrentLocation();
-
-    if (locationProvider.state case ResultSuccess<LocationData>(
-      data: final locationData,
-    )) {
+    final locationState = locationProvider.state;
+    if (locationState is ResultSuccess) {
+      final LocationData locationData = locationState.data;
       final (lat, lon) = (locationData.latitude, locationData.longitude);
       if (lat != null && lon != null) {
         await geoProvider.addressFromLatLng(LatLng(lat, lon));
-
         if (!mounted) return;
         widget.controller.text = switch (geoProvider.state) {
           ResultSuccess(data: final String address) => address,
@@ -113,12 +135,18 @@ class _LocationFormFieldState extends State<LocationFormField>
           mainAxisSize: MainAxisSize.min,
           spacing: 4,
           children: [
-            LoadingButton(
-              isLoading: isLoading,
-              minWidth: 16,
+            IconButton.filledTonal(
               onPressed: handleLocationButtonTap,
-              child: Icon(Icons.location_searching),
+              icon:
+                  isLoading
+                      ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(),
+                      )
+                      : Icon(Icons.location_searching),
             ),
+
             IconButton.filledTonal(
               onPressed: handleMapButtonTap,
               icon: Icon(Icons.map_outlined),

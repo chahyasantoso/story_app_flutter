@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
-import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/add/location_form_field.dart';
+import 'package:story_app/static/flavor_type.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
@@ -28,15 +27,25 @@ class AddPostScreen extends StatefulWidget {
 
 class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
   late StoryAddProvider _addProvider;
-  final descriptionController = TextEditingController();
-  final descriptionFocusNode = FocusNode();
-  final locationController = TextEditingController();
+  late TextEditingController locationController;
+  late TextEditingController descriptionController;
   final locationFocusNode = FocusNode();
+  final descriptionFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _addProvider = context.read<StoryAddProvider>();
+    locationController = TextEditingController(text: _addProvider.location);
+    descriptionController = TextEditingController(
+      text: _addProvider.description,
+    );
+    locationController.addListener(() {
+      _addProvider.location = locationController.text;
+    });
+    descriptionController.addListener(() {
+      _addProvider.description = descriptionController.text;
+    });
   }
 
   @override
@@ -132,7 +141,7 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
     return DecoratedBox(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/images/background_stars.png"),
+          image: AssetImage(FlavorConfig.instance.assetBackground),
           fit: BoxFit.cover,
         ),
       ),
@@ -179,11 +188,6 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
     return null;
   }
 
-  void handleMapButtonTap() {
-    // final completer = Completer<String>();
-    // context.read<AppRoute>().go("/app/add/map");
-  }
-
   Widget buildFormField() {
     final result = context.watch<StoryAddProvider>().result;
     final isLoading = result is ResultLoading;
@@ -192,21 +196,19 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
       crossAxisAlignment: CrossAxisAlignment.end,
       spacing: 16,
       children: [
-        LocationFormField(
-          controller: locationController..text = _addProvider.location ?? "",
-          onChanged: (value) => _addProvider.location = value,
-          focusNode: locationFocusNode,
-          onFocus: clearError<LocationValidationException>,
-          errorText: buildErrorText<LocationValidationException>(),
-          onLocationButtonTap: handleLocationButtonTap,
-          onMapButtonTap: () {},
-        ),
+        if (FlavorConfig.instance.flavor == FlavorType.paid)
+          LocationFormField(
+            controller: locationController,
+            focusNode: locationFocusNode,
+            onFocus: clearError<LocationValidationException>,
+            errorText: buildErrorText<LocationValidationException>(),
+            onLocationButtonTap: handleLocationButtonTap,
+          ),
         DescriptionFormField(
           controller: descriptionController,
           focusNode: descriptionFocusNode,
           onFocus: clearError<DescriptionValidationException>,
           errorText: buildErrorText<DescriptionValidationException>(),
-          onChanged: (value) => _addProvider.description = value,
         ),
         LoadingButton(
           isLoading: isLoading,

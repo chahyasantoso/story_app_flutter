@@ -10,6 +10,9 @@ class StoryMap extends StatefulWidget {
   final LatLng location;
   final void Function(LatLng latlon)? onTap;
   final void Function(LatLng latlon)? onLongPress;
+  final void Function(CameraPosition position)? onCameraMove;
+  final void Function()? onCameraMoveStarted;
+  final void Function()? onCameraIdle;
   final WidgetBuilder? loadingBuilder;
   final WidgetBuilder? failureBuilder;
 
@@ -18,6 +21,9 @@ class StoryMap extends StatefulWidget {
     required this.location,
     this.onTap,
     this.onLongPress,
+    this.onCameraIdle,
+    this.onCameraMove,
+    this.onCameraMoveStarted,
     this.loadingBuilder,
     this.failureBuilder,
   });
@@ -39,11 +45,13 @@ class _StoryMapState extends State<StoryMap> {
     geoProvider = context.read<GeocodingProvider>();
   }
 
+  LatLng get mapLocation => mapProvider.location ?? widget.location;
+
   Marker get _marker => Marker(
-    markerId: MarkerId(widget.location.toString()),
-    position: widget.location,
+    markerId: MarkerId(mapLocation.toString()),
+    position: mapLocation,
     infoWindow: buildInfoWindow(),
-    onTap: () => geoProvider.addressFromLatLng(widget.location),
+    onTap: () => geoProvider.addressFromLatLng(mapLocation),
   );
 
   InfoWindow buildInfoWindow() {
@@ -60,6 +68,10 @@ class _StoryMapState extends State<StoryMap> {
   //-perbaiki info window
   //-bikin falvor
   //-bikin animasi
+  void onMapCreated(controller) {
+    mapProvider.onMapCreated(controller);
+    mapProvider.location = mapLocation;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,30 +82,36 @@ class _StoryMapState extends State<StoryMap> {
       children: [
         GoogleMap(
           key: mapProvider.mapKey,
-          initialCameraPosition: CameraPosition(
-            target: widget.location,
-            zoom: 18,
-          ),
+          onMapCreated: onMapCreated,
+          initialCameraPosition: CameraPosition(target: mapLocation, zoom: 18),
           markers: {_marker},
           zoomControlsEnabled: false,
           myLocationButtonEnabled: false,
           compassEnabled: false,
           mapToolbarEnabled: false,
-          onMapCreated: mapProvider.onMapCreated,
           onTap: widget.onTap,
           onLongPress: widget.onLongPress,
+          onCameraMoveStarted: widget.onCameraMoveStarted,
+          onCameraMove: widget.onCameraMove,
+          onCameraIdle: widget.onCameraIdle,
         ),
         if (state is ResultLoading)
           widget.loadingBuilder?.call(context) ??
-              Center(child: CircularProgressIndicator()),
+              Container(
+                color: ColorScheme.of(context).surfaceContainer,
+                child: Center(child: CircularProgressIndicator()),
+              ),
         if (state is ResultError)
           widget.failureBuilder?.call(context) ??
-              Center(
-                child: IconMessage.error(
-                  "Failed to load map",
-                  button: FilledButton(
-                    onPressed: mapProvider.retry,
-                    child: Text("Try again"),
+              Container(
+                color: ColorScheme.of(context).surfaceContainer,
+                child: Center(
+                  child: IconMessage.error(
+                    "Failed to load map",
+                    button: FilledButton(
+                      onPressed: mapProvider.retry,
+                      child: Text("Try again"),
+                    ),
                   ),
                 ),
               ),
