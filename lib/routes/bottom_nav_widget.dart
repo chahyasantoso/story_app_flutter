@@ -30,6 +30,10 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
     _homeRouterDelegate = HomeRouterDelegate(_appRoute);
     _favRouterDelegate = FavRouterDelegate(_appRoute);
 
+<<<<<<< HEAD
+=======
+    widget.bottomNavRoute.initRoute();
+>>>>>>> 8ec4bdd7f9d7a13ffca7f45f747d317f93ba04a2
     _appRoute.addListener(_routeListener);
   }
 
