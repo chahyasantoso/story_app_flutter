@@ -7,7 +7,7 @@
       "type": "dart",
       "program": "lib/main_free.dart",
       "flutterMode": "debug",
-      "args": ["--flavor", "free", "-v"]
+      "args": ["--flavor", "free"]
     },
     {
       "name": "free_release",
@@ -15,7 +15,7 @@
       "type": "dart",
       "program": "lib/main_free.dart",
       "flutterMode": "release",
-      "args": ["--flavor", "free", "-v"]
+      "args": ["--flavor", "free"]
     },
     {
       "name": "paid_debug",
@@ -23,7 +23,7 @@
       "type": "dart",
       "program": "lib/main_paid.dart",
       "flutterMode": "debug",
-      "args": ["--flavor", "paid", "-v"]
+      "args": ["--flavor", "paid"]
     },
     {
       "name": "paid_release",
@@ -31,7 +31,7 @@
       "type": "dart",
       "program": "lib/main_paid.dart",
       "flutterMode": "release",
-      "args": ["--flavor", "paid", "-v"]
+      "args": ["--flavor", "paid"]
     }
   ]
 }
