@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/screen/home/story_list_item.dart';
+import 'package:story_app/screen/fav/animated_story_list_item.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
 
@@ -63,9 +63,13 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
                   ),
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    return buildAnimatedStoryListItem(
-                      data[index],
-                      Duration(milliseconds: 300),
+                    // print(
+                    //   "masuk data length = ${data.length} ${data[index]}\n",
+                    // );
+                    return AnimatedStoryListItem(
+                      key: ValueKey(data[index].id),
+                      data: data[index],
+                      animationDuration: Duration(milliseconds: 300),
                     );
                   },
                 ),
@@ -81,57 +85,6 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
               _ => SizedBox(),
             };
           },
-        ),
-      ),
-    );
-  }
-
-  final Map<String, AnimationController> animationControllers = {};
-
-  @override
-  void dispose() {
-    for (final controller in animationControllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  Widget buildAnimatedStoryListItem(Story story, Duration duration) {
-    AnimationController? controller = animationControllers[story.id];
-    if (controller == null) {
-      controller = AnimationController(vsync: this, duration: duration);
-      animationControllers[story.id] = controller;
-    }
-    controller.forward();
-    final animation = CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOut,
-    );
-
-    return FadeTransition(
-      opacity: animation,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(-1.0, 0.0),
-          end: Offset.zero,
-        ).animate(animation),
-        child: GestureDetector(
-          onTap: () => handleDetail(story.id),
-          child: StoryListItem(
-            data: story,
-            onFavButtonTap: (isFavorite) async {
-              if (isFavorite) {
-                final controller = animationControllers[story.id];
-                if (controller == null || controller.isAnimating) return;
-
-                await controller.reverse();
-
-                controller.dispose();
-                animationControllers.remove(story.id);
-                favListProvider.notifyListeners();
-              }
-            },
-          ),
         ),
       ),
     );
