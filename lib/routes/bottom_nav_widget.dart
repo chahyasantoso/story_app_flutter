@@ -7,6 +7,7 @@ import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/fav_router_delegate.dart';
 import 'package:story_app/routes/home_router_delegate.dart';
 import 'package:story_app/screen/settings/settings_screen.dart';
+
 import '/l10n/app_localizations.dart';
 
 class BottomNavWidget extends StatefulWidget {
@@ -22,27 +23,28 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
   late HomeRouterDelegate _homeRouterDelegate;
   late FavRouterDelegate _favRouterDelegate;
 
-  void _routeListener() {
-    if (_appRoute.path is BottomNavPath) {
-      final path = _appRoute.path as BottomNavPath;
-      widget.bottomNavRoute.pushPath(path);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    widget.bottomNavRoute.reset();
+    widget.bottomNavRoute.initRoute();
     _appRoute = context.read<AppRoute>();
-    _appRoute.addListener(_routeListener);
     _homeRouterDelegate = HomeRouterDelegate(_appRoute);
     _favRouterDelegate = FavRouterDelegate(_appRoute);
+
+    _appRoute.addListener(_routeListener);
   }
 
   @override
   void dispose() {
     _appRoute.removeListener(_routeListener);
     super.dispose();
+  }
+
+  void _routeListener() {
+    if (_appRoute.path is BottomNavPath) {
+      final path = _appRoute.path as BottomNavPath;
+      widget.bottomNavRoute.pushPath(path);
+    }
   }
 
   ChildBackButtonDispatcher get childBackButtonDispatcher =>

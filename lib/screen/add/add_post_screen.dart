@@ -14,7 +14,7 @@ import 'package:story_app/widget/description_form_field.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
 import 'package:story_app/widget/loading_button.dart';
 import 'package:story_app/widget/location_form_field.dart';
-import 'package:story_app/widget/story_image.dart';
+import 'package:story_app/widget/story_aspect_ratio_image.dart';
 import 'package:story_app/widget/validation_exception.dart';
 
 import '/l10n/app_localizations.dart';
@@ -63,7 +63,7 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(title: Text(appLocalizations.titleAdd)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -108,7 +108,7 @@ class _AddPostScreenState extends State<AddPostScreen> with SnackBarUtils {
       child: Stack(
         alignment: Alignment.topRight,
         children: [
-          StoryImage(image: buildImage()),
+          StoryAspectRatioImage(image: buildImage()),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
