@@ -63,13 +63,15 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
                   ),
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    // print(
-                    //   "masuk data length = ${data.length} ${data[index]}\n",
-                    // );
-                    return AnimatedStoryListItem(
-                      key: ValueKey(data[index].id),
-                      data: data[index],
-                      animationDuration: Duration(milliseconds: 300),
+                    final story = data[index];
+                    final id = story.id;
+
+                    return GestureDetector(
+                      onTap: () => handleDetail(id),
+                      child: AnimatedStoryListItem(
+                        key: ValueKey(id),
+                        data: story,
+                      ),
                     );
                   },
                 ),

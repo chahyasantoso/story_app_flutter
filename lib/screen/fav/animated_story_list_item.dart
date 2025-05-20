@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/screen/home/story_list_item.dart';
 
 class AnimatedStoryListItem extends StatefulWidget {
@@ -19,16 +17,13 @@ class AnimatedStoryListItem extends StatefulWidget {
 
 class _AnimatedStoryListItemState extends State<AnimatedStoryListItem>
     with TickerProviderStateMixin {
-  late final FavoriteListProvider favListProvider =
-      context.read<FavoriteListProvider>();
-
   late final AnimationController animationController = AnimationController(
     vsync: this,
     duration: widget.animationDuration,
   );
 
   late final animation = CurvedAnimation(
-    parent: animationController..forward(),
+    parent: animationController..value = 1.0,
     curve: Curves.easeInOut,
   );
 
@@ -36,9 +31,13 @@ class _AnimatedStoryListItemState extends State<AnimatedStoryListItem>
 
   @override
   void dispose() {
-    print("disposed");
     animationController.dispose();
     super.dispose();
+  }
+
+  void startAnimation() {
+    if (animationController.isAnimating) return;
+    animationController.reverse();
   }
 
   @override
@@ -49,13 +48,8 @@ class _AnimatedStoryListItemState extends State<AnimatedStoryListItem>
         position: tween.animate(animation),
         child: StoryListItem(
           data: widget.data,
-          onFavButtonTap: (isFavorite) async {
-            print("Fav tap ${widget.data.id}");
-            if (isFavorite) {
-              if (animationController.isAnimating) return;
-              await animationController.reverse();
-            }
-          },
+          animationController: animationController,
+          onFavButtonPressed: startAnimation,
         ),
       ),
     );

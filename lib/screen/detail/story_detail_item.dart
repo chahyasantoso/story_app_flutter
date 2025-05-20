@@ -55,7 +55,9 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
           ),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: FavoriteButton(data: widget.data),
+            child: FavoriteButton(
+              isFavorite: false,
+            ), //TODO: button masih belum implementasi
           ),
         ],
       ),
