@@ -1,30 +1,33 @@
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/data/services/story_auth_service.dart';
-import 'package:story_app/provider/favorite_list_provider.dart';
-import 'package:story_app/provider/favorite_button_provider.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
+import 'package:story_app/provider/favorite_button_provider.dart';
+import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/location_provider.dart';
 import 'package:story_app/provider/settings_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
+import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_route_parser.dart';
-import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/static/flavor_type.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/theme/story_theme.dart';
+
 import '/l10n/app_localizations.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 void main() async {
   FlavorConfig(
@@ -51,6 +54,7 @@ void main() async {
         Provider(create: (_) => SharedPreferencesService(pref)),
         Provider(create: (_) => StoryAuthService()),
         Provider(create: (_) => SqliteService()),
+        Provider(create: (_) => LocationService()),
         ChangeNotifierProvider(
           create:
               (context) => AppAuthProvider(
@@ -94,7 +98,10 @@ void main() async {
           create:
               (context) => FavoriteListProvider(context.read<SqliteService>()),
         ),
-        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(
+          create:
+              (context) => LocationProvider(context.read<LocationService>()),
+        ),
         ChangeNotifierProvider(create: (_) => GeocodingProvider()),
       ],
       child: const MainApp(),

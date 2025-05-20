@@ -13,17 +13,17 @@ sealed class AppPath {
         if (segments.length < 2) return HomePath();
         switch (segments[1]) {
           case 'home':
-            if (segments.length == 4 &&
-                segments[2] == 'detail' &&
-                segments[3].isNotEmpty) {
-              return HomeDetailPath(id: segments[3]);
+            if (segments.length == 4 && segments[2] == 'detail') {
+              if (segments[3].isNotEmpty) {
+                return HomeDetailPath(id: segments[3]);
+              }
             }
             return HomePath();
           case 'fav':
-            if (segments.length == 4 &&
-                segments[2] == 'detail' &&
-                segments[3].isNotEmpty) {
-              return FavDetailPath(id: segments[3]);
+            if (segments.length == 4 && segments[2] == 'detail') {
+              if (segments[3].isNotEmpty) {
+                return FavDetailPath(id: segments[3]);
+              }
             }
             return FavPath();
           case 'add':
@@ -31,11 +31,6 @@ sealed class AppPath {
               return AddMapPath();
             }
             return AddPostPath();
-          case 'image':
-            final imageUrl = uri.queryParameters['url'];
-            if (imageUrl != null && imageUrl.isNotEmpty) {
-              return ImageViewPath(url: imageUrl);
-            }
           case 'settings':
             return SettingsPath();
         }
@@ -67,14 +62,12 @@ class UnknownPath extends AppPath {
 
 sealed class BottomNavPath extends AuthenticatedPath {}
 
-sealed class HomeSubPath extends BottomNavPath {}
-
-class HomePath extends HomeSubPath {
+class HomePath extends BottomNavPath {
   @override
   Uri toUri() => Uri(path: '/app/home');
 }
 
-class HomeDetailPath extends HomeSubPath {
+class HomeDetailPath extends AuthenticatedPath {
   final String id;
   HomeDetailPath({required this.id});
 
@@ -82,14 +75,12 @@ class HomeDetailPath extends HomeSubPath {
   Uri toUri() => Uri(path: '/app/home/detail/$id');
 }
 
-sealed class FavSubPath extends BottomNavPath {}
-
-class FavPath extends FavSubPath {
+class FavPath extends BottomNavPath {
   @override
   Uri toUri() => Uri(path: '/app/fav');
 }
 
-class FavDetailPath extends FavSubPath {
+class FavDetailPath extends AuthenticatedPath {
   final String id;
   FavDetailPath({required this.id});
 
@@ -97,14 +88,14 @@ class FavDetailPath extends FavSubPath {
   Uri toUri() => Uri(path: '/app/fav/detail/$id');
 }
 
-sealed class AddSubPath extends AuthenticatedPath {}
+sealed class AddPath extends AuthenticatedPath {}
 
-class AddPostPath extends AddSubPath {
+class AddPostPath extends AddPath {
   @override
   Uri toUri() => Uri(path: '/app/add');
 }
 
-class AddMapPath extends AddSubPath {
+class AddMapPath extends AddPath {
   @override
   Uri toUri() => Uri(path: '/app/add/map');
 }
@@ -112,12 +103,4 @@ class AddMapPath extends AddSubPath {
 class SettingsPath extends BottomNavPath {
   @override
   Uri toUri() => Uri(path: '/app/settings');
-}
-
-class ImageViewPath extends AuthenticatedPath {
-  final String url;
-  ImageViewPath({required this.url});
-
-  @override
-  Uri toUri() => Uri(path: '/app/image?url=$url');
 }

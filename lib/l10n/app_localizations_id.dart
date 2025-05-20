@@ -153,7 +153,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get locationHintText => 'Masukkan alamat atau koordinat lintang, bujur';
 
   @override
-  String get messageLocationNotFound => 'Tidak dapat menemukan lokasi';
+  String get messageLocationNotFound => 'Tidak dapat menemukan lokasi terkini';
 
   @override
   String get messageUsingCoordinate => 'Menggunakan koordinat';

@@ -58,48 +58,6 @@ class StoryApiService {
     int? size,
     int? location = 0,
   }) async {
-    // return StoryListResponse(
-    //   error: false,
-    //   message: "success",
-    //   listStory: [
-    //     Story(
-    //       id: "01",
-    //       name: "Story1",
-    //       description: "description1",
-    //       photoUrl: "xxx",
-    //       createdAt: DateTime.now(),
-    //       lat: 7.2575,
-    //       lon: 112.7521,
-    //     ),
-    //     Story(
-    //       id: "02",
-    //       name: "Story2",
-    //       description: "description1",
-    //       photoUrl: "xxx",
-    //       createdAt: DateTime.now(),
-    //       lat: 7.2575,
-    //       lon: 112.7521,
-    //     ),
-    //     Story(
-    //       id: "03",
-    //       name: "Story3",
-    //       description: "description1",
-    //       photoUrl: "xxx",
-    //       createdAt: DateTime.now(),
-    //       lat: 7.2575,
-    //       lon: 112.7521,
-    //     ),
-    //     Story(
-    //       id: "04",
-    //       name: "Story4",
-    //       description: "description1",
-    //       photoUrl: "xxx",
-    //       createdAt: DateTime.now(),
-    //       lat: 7.2575,
-    //       lon: 112.7521,
-    //     ),
-    //   ],
-    // );
     final queryParam = {
       if (page != null) "page": page.toString(),
       if (size != null) "size": size.toString(),
@@ -120,19 +78,6 @@ class StoryApiService {
   }
 
   Future<StoryDetailResponse> getStoryDetail(String id) async {
-    // return StoryDetailResponse(
-    //   error: false,
-    //   message: "ok",
-    //   story: Story(
-    //     id: "01",
-    //     name: "Story1",
-    //     description: "description1",
-    //     photoUrl: "xxx",
-    //     createdAt: DateTime.now(),
-    //     lat: -7.250445,
-    //     lon: 112.7521,
-    //   ),
-    // );
     final response = await http.get(
       Uri.parse("$apiUrl/stories/$id"),
       headers: {HttpHeaders.authorizationHeader: "Bearer $token"},

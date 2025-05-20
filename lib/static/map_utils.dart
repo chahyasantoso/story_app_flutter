@@ -1,7 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 mixin MapUtils {
-  final defaultLatLng = LatLng(-7, 112);
+  final defaultLatLng = LatLng(-6.8957473, 107.6337669);
 
   LatLng? latLngFromDouble(double? lat, double? lon) {
     if (lat == null || lon == null) return null;

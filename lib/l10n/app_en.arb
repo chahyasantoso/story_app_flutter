@@ -47,6 +47,6 @@
     "titleSelectLocation": "Select Location",
     "locationLabelText": "Location",
     "locationHintText": "Enter address or lat, lon coordinate",
-    "messageLocationNotFound": "Can't get location",
+    "messageLocationNotFound": "Can't get current location",
     "messageUsingCoordinate": "Using coordinate"
 }

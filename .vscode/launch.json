@@ -2,36 +2,36 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "story app free (debug)",
+      "name": "free_debug",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "debug",
       "program": "lib/main_free.dart",
-      "args": ["--flavor", "free"]
-    },
-    {
-      "name": "story app free (release)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "release",
-      "program": "lib/main_free.dart",
-      "args": ["--flavor", "free"]
-    },
-    {
-      "name": "story app paid (debug)",
-      "request": "launch",
-      "type": "dart",
       "flutterMode": "debug",
-      "program": "lib/main_paid.dart",
-      "args": ["--flavor", "paid"]
+      "args": ["--flavor", "free", "-v"]
     },
     {
-      "name": "story app paid (release)",
+      "name": "free_release",
       "request": "launch",
       "type": "dart",
+      "program": "lib/main_free.dart",
       "flutterMode": "release",
+      "args": ["--flavor", "free", "-v"]
+    },
+    {
+      "name": "paid_debug",
+      "request": "launch",
+      "type": "dart",
       "program": "lib/main_paid.dart",
-      "args": ["--flavor", "paid"]
+      "flutterMode": "debug",
+      "args": ["--flavor", "paid", "-v"]
+    },
+    {
+      "name": "paid_release",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_paid.dart",
+      "flutterMode": "release",
+      "args": ["--flavor", "paid", "-v"]
     }
   ]
 }

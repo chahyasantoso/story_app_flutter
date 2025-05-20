@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
@@ -44,6 +45,7 @@ void main() async {
         Provider(create: (_) => SharedPreferencesService(pref)),
         Provider(create: (_) => StoryAuthService()),
         Provider(create: (_) => SqliteService()),
+        Provider(create: (_) => LocationService()),
         ChangeNotifierProvider(
           create:
               (context) => AppAuthProvider(
@@ -87,7 +89,10 @@ void main() async {
           create:
               (context) => FavoriteListProvider(context.read<SqliteService>()),
         ),
-        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(
+          create:
+              (context) => LocationProvider(context.read<LocationService>()),
+        ),
         ChangeNotifierProvider(create: (_) => GeocodingProvider()),
       ],
       child: const MainApp(),

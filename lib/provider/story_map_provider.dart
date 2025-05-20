@@ -15,8 +15,7 @@ class StoryMapProvider extends SafeChangeNotifier with MapUtils {
   // jadi error (platform error pigeon bla bla...)
   // tapi kalo dipassing ke variabel biasa bisa. jadi ya completernya
   // buat loading state aja
-  late Completer _completer;
-
+  Completer<void>? _completer;
   Key _mapKey = UniqueKey();
   Key get mapKey => _mapKey;
 
@@ -30,37 +29,49 @@ class StoryMapProvider extends SafeChangeNotifier with MapUtils {
   GoogleMapController? _controller;
   GoogleMapController? get controller => _controller;
 
-  void start([LatLng? position]) async {
+  VoidCallback? _cancelPrevious;
+
+  void initMap([LatLng? position]) async {
+    _cancelPrevious?.call();
+
+    bool isCancelled = false;
+    _cancelPrevious = () {
+      isCancelled = true;
+    };
+
     _location = position;
     _state = ResultLoading();
     _mapKey = UniqueKey();
     notifyListeners();
 
-    _completer = Completer();
+    _completer = Completer<void>();
     try {
-      await _completer.future.timeout(const Duration(seconds: 60));
-      if (_controller == null) return;
+      await _completer?.future.timeout(const Duration(seconds: 60));
+      if (_controller == null || isCancelled) return;
       _state = ResultSuccess(data: _controller);
-      notifyListeners();
     } catch (e) {
+      if (isCancelled) return;
       _state = ResultError(error: e, message: e.toString());
-      notifyListeners();
+    } finally {
+      if (!isCancelled) notifyListeners();
     }
   }
 
-  void retry() => start(_location);
+  void retry() => initMap(_location);
 
-  void onMapCreated(GoogleMapController controller) async {
+  void onMapCreated(GoogleMapController controller) {
     _controller = controller;
-    if (!_completer.isCompleted) {
-      _completer.complete();
+    final completer = _completer;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
     }
   }
 
   void resetState() {
+    _cancelPrevious?.call();
     _location = null;
     _state = ResultNone();
-    _completer = Completer();
+    _completer = null;
     _controller = null;
   }
 }

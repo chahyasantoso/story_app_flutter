@@ -47,7 +47,7 @@
     "titleSelectLocation": "Pilih Lokasi",
     "locationLabelText": "Lokasi",
     "locationHintText": "Masukkan alamat atau koordinat lintang, bujur",
-    "messageLocationNotFound": "Tidak dapat menemukan lokasi",
+    "messageLocationNotFound": "Tidak dapat menemukan lokasi terkini",
     "messageUsingCoordinate": "Menggunakan koordinat"
   }
   

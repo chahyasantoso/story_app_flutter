@@ -29,11 +29,6 @@ class StoryAuthService {
   }
 
   Future<LoginResponse> loginUser(String email, String password) async {
-    // return LoginResponse(
-    //   error: false,
-    //   message: "ok",
-    //   loginResult: LoginResult(userId: "01", name: "Chahya", token: "x"),
-    // );
     final response = await http.post(
       Uri.parse("$apiUrl/login"),
       headers: {

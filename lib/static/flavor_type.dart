@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 
 enum FlavorType { free, paid }
@@ -26,4 +27,19 @@ class FlavorConfig {
   }
 
   static FlavorConfig get instance => _instance ?? FlavorConfig();
+}
+
+class FlutterModeConfig {
+  static bool get isDebug => kDebugMode;
+  static bool get isRelease => kReleaseMode;
+  static bool get isProfile => kProfileMode;
+
+  static String get flutterMode =>
+      isDebug
+          ? "debug"
+          : isRelease
+          ? "release"
+          : isProfile
+          ? "profile"
+          : "unknown";
 }

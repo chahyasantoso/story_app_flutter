@@ -10,7 +10,6 @@ import 'package:story_app/widget/icon_message.dart';
 
 class StoryMap extends StatefulWidget {
   final LatLng location;
-  final void Function()? onMapInit;
   final void Function(GoogleMapController controller)? onMapReady;
   final void Function(LatLng latlon)? onTap;
   final void Function(LatLng latlon)? onLongPress;
@@ -21,7 +20,6 @@ class StoryMap extends StatefulWidget {
   const StoryMap({
     super.key,
     required this.location,
-    this.onMapInit,
     this.onMapReady,
     this.onTap,
     this.onLongPress,
@@ -44,8 +42,7 @@ class _StoryMapState extends State<StoryMap> {
     mapProvider = context.read<StoryMapProvider>();
     geoProvider = context.read<GeocodingProvider>();
     Future.microtask(() {
-      widget.onMapInit?.call();
-      mapProvider.start(widget.location);
+      mapProvider.initMap(widget.location);
     });
   }
 

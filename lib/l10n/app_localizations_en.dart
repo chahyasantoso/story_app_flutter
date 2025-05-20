@@ -153,7 +153,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationHintText => 'Enter address or lat, lon coordinate';
 
   @override
-  String get messageLocationNotFound => 'Can\'t get location';
+  String get messageLocationNotFound => 'Can\'t get current location';
 
   @override
   String get messageUsingCoordinate => 'Using coordinate';

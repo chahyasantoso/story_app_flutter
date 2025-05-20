@@ -386,7 +386,7 @@ abstract class AppLocalizations {
   /// No description provided for @messageLocationNotFound.
   ///
   /// In id, this message translates to:
-  /// **'Tidak dapat menemukan lokasi'**
+  /// **'Tidak dapat menemukan lokasi terkini'**
   String get messageLocationNotFound;
 
   /// No description provided for @messageUsingCoordinate.

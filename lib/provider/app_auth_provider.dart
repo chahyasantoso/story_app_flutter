@@ -3,21 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/user_profile.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
-import 'package:story_app/data/services/firebase_auth_service.dart';
 import 'package:story_app/data/services/story_auth_service.dart';
 import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 
 class AppAuthProvider extends SafeChangeNotifier {
   final StoryAuthService storyAuthService;
-  final FirebaseAuthService? firebaseAuthService;
   final SharedPreferencesService prefService;
 
-  AppAuthProvider({
-    required this.storyAuthService,
-    required this.prefService,
-    this.firebaseAuthService,
-  });
+  AppAuthProvider({required this.storyAuthService, required this.prefService});
 
   AuthState _authState = AuthUnauthenticated();
   AuthState get authState => _authState;
@@ -32,7 +26,6 @@ class AppAuthProvider extends SafeChangeNotifier {
     notifyListeners();
     try {
       await storyAuthService.registerUser(name, email, password);
-      //await firebaseAuthService?.createUser(name, email, password);
       _authState = AuthAccountCreated();
       notifyListeners();
     } on HttpException catch (e) {
@@ -50,7 +43,6 @@ class AppAuthProvider extends SafeChangeNotifier {
     notifyListeners();
     try {
       final result = await storyAuthService.loginUser(email, password);
-      //final userCredential = await firebaseAuthService?.signInUser(email, password);
       final user = UserProfile.fromJson(result.loginResult.toJson());
       await prefService.saveUserValue(user);
       _authState = AuthAuthenticated(user: user, message: result.message);

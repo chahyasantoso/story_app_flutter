@@ -9,7 +9,6 @@ import 'package:story_app/routes/bottom_nav_route.dart';
 import 'package:story_app/routes/bottom_nav_widget.dart';
 import 'package:story_app/screen/add/add_map_screen.dart';
 import 'package:story_app/screen/add/add_post_screen.dart';
-import 'package:story_app/screen/image/image_view_screen.dart';
 import 'package:story_app/screen/login/login_screen.dart';
 import 'package:story_app/screen/register/register_screen.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
@@ -64,15 +63,10 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
             notifyListeners();
           });
         },
-        child: BottomNavWidget(bottomNavRoute: _bottomNavRoute..initRoute()),
+        child: BottomNavWidget(bottomNavRoute: _bottomNavRoute),
       ),
     ),
-    if (_appRoute.path is AddSubPath) ..._addStack,
-    if (_appRoute.path is ImageViewPath)
-      MaterialPage(
-        key: ValueKey("AddPostScreen"),
-        child: ImageViewScreen(url: (_appRoute.path as ImageViewPath).url),
-      ),
+    if (_appRoute.path is AddPath) ..._addStack,
   ];
 
   List<Page<dynamic>> get _addStack => [
@@ -103,12 +97,9 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
             if (_appRoute.path is RegisterPath) {
               _appRoute.goBack();
             } else if (_appRoute.path is AddPostPath) {
-              //back to the root of bottomNavRoute's path
-              //_appRoute.changePath(_bottomNavRoute.currentPath);
+              _appRoute.changePath(_bottomNavRoute.currentPath);
             } else if (_appRoute.path is AddMapPath) {
               _appRoute.goBack();
-            } else if (_appRoute.path is ImageViewPath) {
-              _appRoute.changePath(_bottomNavRoute.currentPath);
             }
           }
         },
