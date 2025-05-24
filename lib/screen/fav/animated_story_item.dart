@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/screen/home/story_list_item.dart';
+import 'package:story_app/screen/home/story_item.dart';
 
-class AnimatedStoryListItem extends StatefulWidget {
+class AnimatedStoryItem extends StatefulWidget {
   final Story data;
   final Duration? animationDuration;
-  const AnimatedStoryListItem({
+  const AnimatedStoryItem({
     super.key,
     required this.data,
     this.animationDuration = const Duration(milliseconds: 300),
   });
 
   @override
-  State<AnimatedStoryListItem> createState() => _AnimatedStoryListItemState();
+  State<AnimatedStoryItem> createState() => _AnimatedStoryItemState();
 }
 
-class _AnimatedStoryListItemState extends State<AnimatedStoryListItem>
+class _AnimatedStoryItemState extends State<AnimatedStoryItem>
     with TickerProviderStateMixin {
   late final AnimationController animationController = AnimationController(
     vsync: this,
@@ -46,7 +46,7 @@ class _AnimatedStoryListItemState extends State<AnimatedStoryListItem>
       opacity: animation,
       child: SlideTransition(
         position: tween.animate(animation),
-        child: StoryListItem(
+        child: StoryItem(
           data: widget.data,
           animationController: animationController,
           onFavButtonPressed: startAnimation,

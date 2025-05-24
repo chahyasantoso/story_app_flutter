@@ -3,11 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/screen/fav/favorite_button.dart';
+import 'package:story_app/screen/home/story_item.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
-import 'package:story_app/widget/story_aspect_ratio_image.dart';
-import 'package:story_app/widget/story_network_image.dart';
 
 class StoryDetailItem extends StatefulWidget {
   final Story data;
@@ -34,35 +32,12 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
   }
 
   Widget buildImage() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(40)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          GestureDetector(
-            onTap: () {
-              context.read<AppRoute>().go(
-                "/app/image?url=${widget.data.photoUrl}",
-              );
-            },
-            child: StoryAspectRatioImage(
-              image: StoryNetworkImage(
-                photoUrl: widget.data.photoUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
+    return GestureDetector(
+      onTap:
+          () => context.read<AppRoute>().go(
+            "/app/image?url=${widget.data.photoUrl}",
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: FavoriteButton(
-              isFavorite: false,
-            ), //TODO: button masih belum implementasi
-          ),
-        ],
-      ),
+      child: StoryItem(data: widget.data, showName: false),
     );
   }
 

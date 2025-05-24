@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/screen/fav/animated_story_list_item.dart';
+import 'package:story_app/screen/fav/animated_story_item.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
 
@@ -68,10 +68,7 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
 
                     return GestureDetector(
                       onTap: () => handleDetail(id),
-                      child: AnimatedStoryListItem(
-                        key: ValueKey(id),
-                        data: story,
-                      ),
+                      child: AnimatedStoryItem(key: ValueKey(id), data: story),
                     );
                   },
                 ),
