@@ -42,16 +42,18 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
       child: Stack(
         alignment: Alignment.topRight,
         children: [
-          StoryAspectRatioImage(
-            image: StoryNetworkImage(
-              photoUrl: widget.data.photoUrl,
-              fit: BoxFit.cover,
-            ),
+          GestureDetector(
             onTap: () {
               context.read<AppRoute>().go(
                 "/app/image?url=${widget.data.photoUrl}",
               );
             },
+            child: StoryAspectRatioImage(
+              image: StoryNetworkImage(
+                photoUrl: widget.data.photoUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),

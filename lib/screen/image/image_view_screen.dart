@@ -8,11 +8,17 @@ class ImageViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+      ),
       backgroundColor: Colors.black,
-      body: SizedBox(
-        width: double.infinity,
-        child: StoryNetworkImage(photoUrl: url, fit: BoxFit.contain),
+      body: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: StoryNetworkImage(photoUrl: url, fit: BoxFit.contain),
+        ),
       ),
     );
   }

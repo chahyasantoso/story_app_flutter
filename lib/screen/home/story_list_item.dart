@@ -6,6 +6,7 @@ import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/screen/fav/favorite_button.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
+import 'package:story_app/widget/story_aspect_ratio_image.dart';
 import 'package:story_app/widget/story_network_image.dart';
 
 class StoryListItem extends StatefulWidget {
@@ -74,19 +75,18 @@ class _StoryListItemState extends State<StoryListItem> {
         borderRadius: BorderRadius.all(Radius.circular(40)),
       ),
       clipBehavior: Clip.antiAlias,
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Stack(
-          alignment: Alignment.topLeft,
-          children: [
-            Positioned.fill(
-              child: StoryNetworkImage(
-                photoUrl: widget.data.photoUrl,
-                fit: BoxFit.cover,
-              ),
+      child: Stack(
+        children: [
+          StoryAspectRatioImage(
+            image: StoryNetworkImage(
+              photoUrl: widget.data.photoUrl,
+              fit: BoxFit.cover,
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
+          ),
+          Positioned.fill(
+            bottom: null,
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -108,8 +108,8 @@ class _StoryListItemState extends State<StoryListItem> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
