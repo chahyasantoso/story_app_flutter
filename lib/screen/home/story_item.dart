@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/screen/fav/favorite_button.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/story_aspect_ratio_image.dart';
@@ -22,30 +24,39 @@ class StoryItem extends StatefulWidget {
   State<StoryItem> createState() => _StoryItemState();
 }
 
-class _StoryItemState extends State<StoryItem> {
-  Function? _toggleFavorite;
-
+class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    widget.animationController?.addListener(_waitForAnimation);
+    widget.animationController?.addStatusListener(_waitForAnimationStatus);
   }
 
   @override
   void dispose() {
-    widget.animationController?.removeListener(_waitForAnimation);
+    widget.animationController?.removeStatusListener(_waitForAnimationStatus);
     super.dispose();
   }
 
-  void _waitForAnimation() async {
-    final animationStatus =
-        widget.animationController?.status ?? AnimationStatus.completed;
-
-    final isAnimationDone =
-        animationStatus.isDismissed || animationStatus.isCompleted;
-
+  void _waitForAnimationStatus(AnimationStatus status) async {
+    final isAnimationDone = status.isDismissed || status.isCompleted;
     if (!isAnimationDone) return;
-    _toggleFavorite?.call();
+
+    final favMutationProvider = context.read<FavoriteMutationProvider>();
+    favMutationProvider.toggleFavorite(widget.data);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resetState(status);
+    });
+  }
+
+  void _resetState(AnimationStatus status) {
+    widget.animationController?.removeStatusListener(_waitForAnimationStatus);
+    if (status.isDismissed) {
+      widget.animationController?.value = 1.0;
+    } else if (status.isCompleted) {
+      widget.animationController?.value = 0.0;
+    }
+    widget.animationController?.addStatusListener(_waitForAnimationStatus);
   }
 
   @override
@@ -87,9 +98,6 @@ class _StoryItemState extends State<StoryItem> {
                   ),
                   FavoriteButton(
                     data: widget.data,
-                    onInit: (toggleFavorite) {
-                      _toggleFavorite = toggleFavorite;
-                    },
                     onPressed: widget.onFavButtonPressed,
                   ),
                 ],

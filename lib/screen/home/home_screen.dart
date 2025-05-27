@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/provider/favorite_button_provider.dart';
+import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
-  late FavoriteButtonProvider favButtonProvider;
+  late FavoriteMutationProvider favMutationProvider;
   late StoryListProvider listProvider;
   late StoryAddProvider addProvider;
   late ScrollController scrollController;
@@ -28,12 +28,12 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
   @override
   void initState() {
     super.initState();
-    favButtonProvider = context.read<FavoriteButtonProvider>();
+    favMutationProvider = context.read<FavoriteMutationProvider>();
     listProvider = context.read<StoryListProvider>();
     addProvider = context.read<StoryAddProvider>();
     scrollController = ScrollController();
 
-    favButtonProvider.addListener(_snackBarListener);
+    favMutationProvider.addListener(_snackBarListener);
     addProvider.addListener(_addPostListener);
     scrollController.addListener(_endOfListListener);
 
@@ -43,13 +43,13 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
   @override
   void dispose() {
     scrollController.dispose();
-    favButtonProvider.removeListener(_snackBarListener);
+    favMutationProvider.removeListener(_snackBarListener);
     addProvider.removeListener(_addPostListener);
     super.dispose();
   }
 
   void _snackBarListener() {
-    final resultState = favButtonProvider.result;
+    final resultState = favMutationProvider.result;
     switch (resultState) {
       case ResultError(message: final message):
         showSnackBar(context, message);

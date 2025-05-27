@@ -6,14 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/data/services/story_auth_service.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
-import 'package:story_app/provider/favorite_button_provider.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
+import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/location_provider.dart';
 import 'package:story_app/provider/settings_provider.dart';
@@ -24,6 +25,7 @@ import 'package:story_app/routes/app_route_parser.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/static/flavor_type.dart';
+import 'package:story_app/static/result_state.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/theme/story_theme.dart';
 
@@ -63,8 +65,9 @@ void main() async {
               ),
         ),
         ProxyProvider<AppAuthProvider, StoryApiService>(
-          update: (context, authProvider, previous) {
-            return StoryApiService(authProvider.userProfile?.token ?? "");
+          update: (context, authProvider, prev) {
+            final service = prev ?? StoryApiService();
+            return service..token = authProvider.userProfile?.token ?? "";
           },
         ),
         ChangeNotifierProvider(
@@ -92,11 +95,32 @@ void main() async {
         ChangeNotifierProvider(
           create:
               (context) =>
-                  FavoriteButtonProvider(context.read<SqliteService>()),
+                  FavoriteMutationProvider(context.read<SqliteService>()),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<
+          FavoriteMutationProvider,
+          FavoriteListProvider
+        >(
           create:
               (context) => FavoriteListProvider(context.read<SqliteService>()),
+          update: (context, favMutationProvider, prev) {
+            if (prev == null) {
+              return FavoriteListProvider(context.read<SqliteService>());
+            }
+
+            if (favMutationProvider.result case ResultSuccess<Story>(
+              data: final story,
+            )) {
+              switch (favMutationProvider.lastMutation) {
+                case MutationType.add:
+                  prev.addStory(story);
+                case MutationType.remove:
+                  prev.removeById(story.id);
+                default:
+              }
+            }
+            return prev;
+          },
         ),
         ChangeNotifierProvider(
           create:

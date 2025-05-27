@@ -65,7 +65,6 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
                   itemBuilder: (context, index) {
                     final story = data[index];
                     final id = story.id;
-
                     return GestureDetector(
                       onTap: () => handleDetail(id),
                       child: AnimatedStoryItem(key: ValueKey(id), data: story),

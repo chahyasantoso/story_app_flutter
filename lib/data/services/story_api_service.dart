@@ -9,8 +9,12 @@ import "package:story_app/data/model/story_list_response.dart";
 import "package:story_app/static/api_url.dart";
 
 class StoryApiService {
-  final String token;
-  StoryApiService(this.token);
+  String _token;
+  StoryApiService([this._token = ""]);
+
+  set token(String token) {
+    _token = token;
+  }
 
   Future<StoryAddResponse> addStory(
     Uint8List imageBytes,
@@ -34,7 +38,7 @@ class StoryApiService {
     };
     final headers = {
       HttpHeaders.contentTypeHeader: "multipart/form-data",
-      HttpHeaders.authorizationHeader: "Bearer $token",
+      HttpHeaders.authorizationHeader: "Bearer $_token",
     };
 
     request.files.add(multipartFile);
@@ -66,7 +70,7 @@ class StoryApiService {
     final uri = Uri.parse(apiUrl);
     final response = await http.get(
       Uri.https(uri.authority, "${uri.path}/stories", queryParam),
-      headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+      headers: {HttpHeaders.authorizationHeader: "Bearer $_token"},
     );
 
     final jsonBody = jsonDecode(response.body);
@@ -80,7 +84,7 @@ class StoryApiService {
   Future<StoryDetailResponse> getStoryDetail(String id) async {
     final response = await http.get(
       Uri.parse("$apiUrl/stories/$id"),
-      headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+      headers: {HttpHeaders.authorizationHeader: "Bearer $_token"},
     );
 
     final jsonBody = jsonDecode(response.body);

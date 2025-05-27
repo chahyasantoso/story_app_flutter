@@ -3,21 +3,27 @@ import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 
-class FavoriteButtonProvider extends SafeChangeNotifier {
+enum MutationType { add, remove }
+
+class FavoriteMutationProvider extends SafeChangeNotifier {
   final SqliteService _sqliteService;
 
-  FavoriteButtonProvider(this._sqliteService);
+  FavoriteMutationProvider(this._sqliteService);
 
   ResultState _result = ResultNone();
   ResultState get result => _result;
 
+  MutationType? _lastMutation;
+  MutationType? get lastMutation => _lastMutation;
+
   Future<void> addFavorite(Story story) async {
+    _lastMutation = MutationType.add;
     _result = ResultLoading();
     notifyListeners();
     try {
       final id = await _sqliteService.insertItem(story);
       if (id == 0) throw Exception();
-      _result = ResultSuccess(data: id, message: "Story saved");
+      _result = ResultSuccess<Story>(data: story, message: "Story saved");
       notifyListeners();
     } catch (e) {
       _result = ResultError(error: e, message: "Failed to add favorites");
@@ -25,13 +31,14 @@ class FavoriteButtonProvider extends SafeChangeNotifier {
     }
   }
 
-  Future<void> removeFavoriteByStoryId(String storyId) async {
+  Future<void> removeFavorite(Story story) async {
+    _lastMutation = MutationType.remove;
     _result = ResultLoading();
     notifyListeners();
     try {
-      final id = await _sqliteService.removeItemByStoryId(storyId);
-      _result = ResultSuccess(
-        data: id,
+      await _sqliteService.removeItemByStoryId(story.id);
+      _result = ResultSuccess<Story>(
+        data: story,
         message: "Story removed from favorites",
       );
       notifyListeners();
@@ -41,8 +48,13 @@ class FavoriteButtonProvider extends SafeChangeNotifier {
     }
   }
 
-  Future<bool> isFavorite(String storyId) async {
-    final result = await _sqliteService.getItemByStoryId(storyId);
-    return result != null;
+  Future<void> toggleFavorite(Story story) async {
+    final favStory = await _sqliteService.getItemByStoryId(story.id);
+    final isFavorite = favStory != null;
+    if (isFavorite) {
+      await removeFavorite(story);
+    } else {
+      await addFavorite(story);
+    }
   }
 }
