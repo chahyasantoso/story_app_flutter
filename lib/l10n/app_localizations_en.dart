@@ -12,7 +12,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get titleApp => 'StoryApp';
 
   @override
-  String get landingText => 'Capture and share your moments\nwith stunning photos';
+  String get landingText =>
+      'Capture and share your moments\nwith stunning photos';
 
   @override
   String get loginButtonText => 'Login';

@@ -12,7 +12,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get titleApp => 'StoryApp';
 
   @override
-  String get landingText => 'Tangkap dan bagikan momenmu\ndengan foto yang menakjubkan';
+  String get landingText =>
+      'Tangkap dan bagikan momenmu\ndengan foto yang menakjubkan';
 
   @override
   String get loginButtonText => 'Masuk';
@@ -69,7 +70,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get messagePasswordEmpty => 'Masukkan kata sandi kamu';
 
   @override
-  String get messagePasswordTooShort => 'Kata sandi harus lebih dari 8 karakter';
+  String get messagePasswordTooShort =>
+      'Kata sandi harus lebih dari 8 karakter';
 
   @override
   String get messageEmailEmpty => 'Email tidak boleh kosong';
@@ -150,7 +152,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get locationLabelText => 'Lokasi';
 
   @override
-  String get locationHintText => 'Masukkan alamat atau koordinat lintang, bujur';
+  String get locationHintText =>
+      'Masukkan alamat atau koordinat lintang, bujur';
 
   @override
   String get messageLocationNotFound => 'Tidak dapat menemukan lokasi terkini';

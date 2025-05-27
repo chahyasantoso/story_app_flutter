@@ -32,6 +32,11 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
     _favRouterDelegate = FavRouterDelegate(_appRoute);
 
     _appRoute.addListener(_routeListener);
+
+    // Future.microtask(() {
+    //   if (!mounted) return;
+    //   context.read<FavoriteListProvider>().getAll();
+    // });
   }
 
   @override

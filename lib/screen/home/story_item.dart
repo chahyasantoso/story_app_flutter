@@ -42,11 +42,9 @@ class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
     if (!isAnimationDone) return;
 
     final favMutationProvider = context.read<FavoriteMutationProvider>();
-    favMutationProvider.toggleFavorite(widget.data);
+    await favMutationProvider.toggleFavorite(widget.data);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _resetState(status);
-    });
+    _resetState(status);
   }
 
   void _resetState(AnimationStatus status) {

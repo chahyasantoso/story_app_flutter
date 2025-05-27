@@ -33,6 +33,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   Widget build(BuildContext context) {
     final favListProvider = context.watch<FavoriteListProvider>();
     final isFavorite = favListProvider.isFavorite(widget.data.id);
+    //not sure if i need isFavorite here....
 
     return IconButton.filledTonal(
       icon:
