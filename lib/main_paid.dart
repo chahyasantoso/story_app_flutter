@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
@@ -25,7 +24,6 @@ import 'package:story_app/routes/app_route_parser.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/static/flavor_type.dart';
-import 'package:story_app/static/result_state.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/theme/story_theme.dart';
 
@@ -108,18 +106,7 @@ void main() async {
             if (prev == null) {
               return FavoriteListProvider(context.read<SqliteService>());
             }
-
-            if (favMutationProvider.result case ResultSuccess<Story>(
-              data: final story,
-            )) {
-              switch (favMutationProvider.lastMutation) {
-                case MutationType.add:
-                  prev.addStory(story);
-                case MutationType.remove:
-                  prev.removeById(story.id);
-                default:
-              }
-            }
+            prev.onMutation(favMutationProvider);
             return prev;
           },
         ),

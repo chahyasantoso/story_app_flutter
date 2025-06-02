@@ -1,45 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/sqlite_service.dart';
+import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 
 class FavoriteListProvider extends SafeChangeNotifier {
   final SqliteService _sqliteService;
-
   FavoriteListProvider(this._sqliteService);
 
   ResultState _result = ResultNone();
   ResultState get result => _result;
 
-  List<Story> get _favList {
-    if (_result case ResultSuccess<List<Story>>(data: final favList)) {
-      final reversedList = favList.reversed.toList();
-      return reversedList;
-    }
-    return [];
-  }
-
-  set _favList(List<Story> newList) {
-    final reversedList = newList.reversed.toList();
-    _result =
-        _result is ResultSuccess ? ResultSuccess(data: reversedList) : _result;
-  }
-
-  List<Story> get favList => _favList;
+  List<Story> _favList = [];
+  List<Story> get favList => _favList.reversed.toList();
 
   Future<void> getAll() async {
+    if (_result is ResultLoading) return;
+
     _result = ResultLoading();
     notifyListeners();
     try {
       final favorites = await _sqliteService.getAllItems();
-      final reversedList = favorites.reversed.toList();
-
+      _favList = favorites;
       _result = ResultSuccess(
-        data: reversedList,
+        data: favList,
         message: "Fetch favorites success",
       );
-      _favList = favorites;
       notifyListeners();
     } catch (e) {
       debugPrint("Error $e");
@@ -48,17 +35,27 @@ class FavoriteListProvider extends SafeChangeNotifier {
     }
   }
 
-  void removeById(String id) {
-    _favList = _favList.where((story) => story.id != id).toList();
-    notifyListeners();
-  }
+  void onMutation(FavoriteMutationProvider mutationProvider) {
+    final mutationResult = mutationProvider.result;
+    if (mutationResult is! ResultSuccess || _result is! ResultSuccess) return;
 
-  void addStory(Story story) {
-    _favList = [..._favList, story];
+    final Story story = mutationResult.data;
+    switch (mutationProvider.lastMutation) {
+      case MutationType.add:
+        _favList = [..._favList, story];
+      case MutationType.remove:
+        _favList = _favList.where((s) => s.id != story.id).toList();
+      default:
+        return;
+    }
+    _result = ResultSuccess(
+      data: favList,
+      message: (_result as ResultSuccess).message,
+    );
     notifyListeners();
   }
 
   bool isFavorite(String id) {
-    return _favList.where((story) => story.id == id).toList().isNotEmpty;
+    return _favList.any((story) => story.id == id);
   }
 }

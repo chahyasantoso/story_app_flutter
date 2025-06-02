@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/screen/fav/favorite_button.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
@@ -25,9 +26,12 @@ class StoryItem extends StatefulWidget {
 }
 
 class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
+  late FavoriteMutationProvider favMutationProvider;
+
   @override
   void initState() {
     super.initState();
+    favMutationProvider = context.read<FavoriteMutationProvider>();
     widget.animationController?.addStatusListener(_waitForAnimationStatus);
   }
 
@@ -41,9 +45,7 @@ class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
     final isAnimationDone = status.isDismissed || status.isCompleted;
     if (!isAnimationDone) return;
 
-    final favMutationProvider = context.read<FavoriteMutationProvider>();
     await favMutationProvider.toggleFavorite(widget.data);
-
     _resetState(status);
   }
 
@@ -57,8 +59,15 @@ class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
     widget.animationController?.addStatusListener(_waitForAnimationStatus);
   }
 
+  void _toogleFavorite() {
+    favMutationProvider.toggleFavorite(widget.data);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final favListProvider = context.watch<FavoriteListProvider>();
+    final isFavorite = favListProvider.isFavorite(widget.data.id);
+
     return Card(
       margin: EdgeInsets.all(8),
       shape: RoundedRectangleBorder(
@@ -95,8 +104,8 @@ class _StoryItemState extends State<StoryItem> with TickerProviderStateMixin {
                             : SizedBox(),
                   ),
                   FavoriteButton(
-                    data: widget.data,
-                    onPressed: widget.onFavButtonPressed,
+                    isFavorite: isFavorite,
+                    onPressed: widget.onFavButtonPressed ?? _toogleFavorite,
                   ),
                 ],
               ),
