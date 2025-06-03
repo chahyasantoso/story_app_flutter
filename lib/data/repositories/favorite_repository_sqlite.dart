@@ -20,7 +20,9 @@ class FavoriteRepositorySqlite extends FavoriteRepository {
 
   @override
   Future<int> insertItem(Story story) async {
-    return _service.insertItem(story);
+    final id = await _service.insertItem(story);
+    if (id == 0) throw Exception("Insert failed");
+    return id;
   }
 
   @override

@@ -79,7 +79,7 @@ class StoryMultiProviders extends StatelessWidget {
         Provider(
           create: (context) {
             final repo = context.read<FavoriteRepository>();
-            FavoriteUseCases(
+            return FavoriteUseCases(
               add: AddStoryToFavorites(repo),
               getAll: GetAllFavoriteStories(repo),
               isFavorite: IsStoryFavorited(repo),
@@ -90,7 +90,7 @@ class StoryMultiProviders extends StatelessWidget {
         ChangeNotifierProvider(
           create:
               (context) =>
-                  FavoriteMutationProvider(context.read<SqliteService>()),
+                  FavoriteMutationProvider(context.read<FavoriteUseCases>()),
         ),
         ChangeNotifierProxyProvider<
           FavoriteMutationProvider,

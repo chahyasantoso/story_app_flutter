@@ -9,14 +9,8 @@ class DuplicateFavoriteException implements Exception {
   String toString() => message;
 }
 
-/// usecases itu adalah interaksi dari user terhadap system.
-/// jadi apa saja yang user bisa lakukan terhadap favorite
-/// biasanya bisa dilihat dari repo nya.
-/// disini system/application rule diberikan. jadi misal add story
-/// maka dia cek dulu apa storynya sudah ada? jadi istilahnya validation
 class AddStoryToFavorites {
   final FavoriteRepository _repo;
-
   AddStoryToFavorites(this._repo);
 
   Future<void> call(Story story) async {
