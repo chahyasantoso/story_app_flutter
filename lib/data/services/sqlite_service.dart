@@ -7,10 +7,9 @@ class SqliteService {
   static const int _version = 1;
 
   Future<void> createTables(Database database) async {
-    await database.execute(
-      """CREATE TABLE $_tableName(
+    await database.execute("""CREATE TABLE $_tableName(
        favoriteId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-       id TEXT,
+       id TEXT NOT NULL UNIQUE,
        name TEXT,
        description TEXT,
        photoUrl TEXT,
@@ -18,8 +17,7 @@ class SqliteService {
        lat REAL,
        lon REAL
      )
-     """,
-    );
+     """);
   }
 
   Future<Database> _initializeDb() async {

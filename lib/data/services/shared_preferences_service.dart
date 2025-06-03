@@ -1,21 +1,18 @@
 import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/data/model/settings.dart';
 import 'package:story_app/data/model/user_profile.dart';
 
 class SharedPreferencesService {
-  final SharedPreferencesAsync _preferences;
+  final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
 
-  SharedPreferencesService(this._preferences);
   static const String keyUser = "STORY_APP_USER";
   static const String keySetting = "STORY_APP_SETTING";
 
   Future<void> saveUserValue(UserProfile user) async {
     String userString = jsonEncode(user.toJson());
-    await _preferences.setString(
-      keyUser,
-      userString,
-    );
+    await _preferences.setString(keyUser, userString);
   }
 
   Future<UserProfile?> getUserValue() async {
@@ -30,10 +27,7 @@ class SharedPreferencesService {
 
   Future<void> saveSettingValue(Settings setting) async {
     String settingString = jsonEncode(setting.toJson());
-    await _preferences.setString(
-      keySetting,
-      settingString,
-    );
+    await _preferences.setString(keySetting, settingString);
   }
 
   Future<Settings?> getSettingValue() async {

@@ -24,7 +24,7 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
     super.initState();
     favListProvider = context.read<FavoriteListProvider>();
     Future.microtask(() {
-      favListProvider.getAll();
+      favListProvider.initList();
     });
   }
 

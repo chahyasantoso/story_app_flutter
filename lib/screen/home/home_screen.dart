@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
+  late FavoriteListProvider favListProvider;
   late FavoriteMutationProvider favMutationProvider;
   late StoryListProvider listProvider;
   late StoryAddProvider addProvider;
@@ -28,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
   @override
   void initState() {
     super.initState();
+    favListProvider = context.read<FavoriteListProvider>();
     favMutationProvider = context.read<FavoriteMutationProvider>();
     listProvider = context.read<StoryListProvider>();
     addProvider = context.read<StoryAddProvider>();
@@ -37,14 +40,17 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
     addProvider.addListener(_addPostListener);
     scrollController.addListener(_endOfListListener);
 
-    Future.microtask(listProvider.initList);
+    Future.microtask(() {
+      favListProvider.initList();
+      listProvider.initList();
+    });
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
     favMutationProvider.removeListener(_snackBarListener);
     addProvider.removeListener(_addPostListener);
+    scrollController.dispose();
     super.dispose();
   }
 
