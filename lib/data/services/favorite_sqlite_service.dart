@@ -1,37 +1,12 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/data/services/story_sqlite_database.dart';
 
-class SqliteService {
-  static const String _databaseName = "story.db";
+class FavoriteSqliteService {
   static const String _tableName = "favorite";
-  static const int _version = 1;
-
-  Future<void> createTables(Database database) async {
-    await database.execute("""CREATE TABLE $_tableName(
-       favoriteId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-       id TEXT NOT NULL UNIQUE,
-       name TEXT,
-       description TEXT,
-       photoUrl TEXT,
-       createdAt TEXT,
-       lat REAL,
-       lon REAL
-     )
-     """);
-  }
-
-  Future<Database> _initializeDb() async {
-    return openDatabase(
-      _databaseName,
-      version: _version,
-      onCreate: (Database database, int version) async {
-        await createTables(database);
-      },
-    );
-  }
 
   Future<int> insertItem(Story story) async {
-    final db = await _initializeDb();
+    final db = await StorySqliteDatabase.database;
 
     final data = story.toJson();
     final id = await db.insert(
@@ -43,14 +18,14 @@ class SqliteService {
   }
 
   Future<List<Story>> getAllItems() async {
-    final db = await _initializeDb();
+    final db = await StorySqliteDatabase.database;
     final results = await db.query(_tableName, orderBy: "favoriteId DESC");
-
     return results.map((result) => Story.fromJson(result)).toList();
   }
 
   Future<Story?> getItemByStoryId(String id) async {
-    final db = await _initializeDb();
+    final db = await StorySqliteDatabase.database;
+
     final results = await db.query(
       _tableName,
       where: "id = ?",
@@ -63,7 +38,7 @@ class SqliteService {
   }
 
   Future<int> removeItemByStoryId(String id) async {
-    final db = await _initializeDb();
+    final db = await StorySqliteDatabase.database;
 
     final result = await db.delete(
       _tableName,

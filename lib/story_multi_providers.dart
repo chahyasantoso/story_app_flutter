@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/repositories/favorite_repository_sqlite.dart';
+import 'package:story_app/data/repositories/story_repository_cache.dart';
+import 'package:story_app/data/services/favorite_sqlite_service.dart';
 import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
-import 'package:story_app/data/services/sqlite_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/data/services/story_auth_service.dart';
+import 'package:story_app/data/services/story_sqlite_service.dart';
 import 'package:story_app/domain/repositories/favorite_repository.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
 import 'package:story_app/domain/usecases/favorite_usecases.dart';
 import 'package:story_app/domain/usecases/favorites/add_story_to_favorites.dart';
 import 'package:story_app/domain/usecases/favorites/get_all_favorite_stories.dart';
 import 'package:story_app/domain/usecases/favorites/is_story_favorited.dart';
 import 'package:story_app/domain/usecases/favorites/remove_story_from_favorites.dart';
+import 'package:story_app/domain/usecases/story/add_story.dart';
+import 'package:story_app/domain/usecases/story/get_all_stories.dart';
+import 'package:story_app/domain/usecases/story/get_story_detail.dart';
+import 'package:story_app/domain/usecases/story_usecases.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
@@ -33,7 +40,7 @@ class StoryMultiProviders extends StatelessWidget {
       providers: [
         Provider(create: (_) => SharedPreferencesService()),
         Provider(create: (_) => StoryAuthService()),
-        Provider(create: (_) => SqliteService()),
+        Provider(create: (_) => FavoriteSqliteService()),
         Provider(create: (_) => LocationService()),
         ChangeNotifierProvider(
           create:
@@ -62,9 +69,26 @@ class StoryMultiProviders extends StatelessWidget {
                 },
               ),
         ),
-        ChangeNotifierProvider(
+        Provider(create: (context) => StorySqliteService()),
+        Provider<StoryRepository>(
           create:
-              (context) => StoryListProvider(context.read<StoryApiService>()),
+              (context) => StoryRepositoryCache(
+                context.read<StoryApiService>(),
+                context.read<StorySqliteService>(),
+              ),
+        ),
+        Provider(
+          create: (context) {
+            final repo = context.read<StoryRepository>();
+            return StoryUsecases(
+              add: AddStory(repo),
+              getAll: GetAllStories(repo),
+              getDetail: GetStoryDetail(repo),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) => StoryListProvider(context.read<StoryUsecases>()),
         ),
         ChangeNotifierProvider(
           create:
@@ -73,8 +97,9 @@ class StoryMultiProviders extends StatelessWidget {
         ),
         Provider<FavoriteRepository>(
           create:
-              (context) =>
-                  FavoriteRepositorySqlite(context.read<SqliteService>()),
+              (context) => FavoriteRepositorySqlite(
+                context.read<FavoriteSqliteService>(),
+              ),
         ),
         Provider(
           create: (context) {

@@ -1,14 +1,14 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/data/services/story_api_service.dart';
+import 'package:story_app/domain/entities/story_entity.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
+import 'package:story_app/domain/usecases/story_usecases.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 
 class StoryListProvider extends SafeChangeNotifier {
-  final StoryApiService _apiService;
-  StoryListProvider(this._apiService);
+  final StoryUsecases _storyUsecase;
+  StoryListProvider(this._storyUsecase);
 
   ResultState _result = ResultNone();
   ResultState get result => _result;
@@ -35,26 +35,40 @@ class StoryListProvider extends SafeChangeNotifier {
     if (_currentPage == 1) {
       notifyListeners();
     }
-    try {
-      final response = await _apiService.getAllStories(
-        page: _currentPage,
-        size: _pageSize,
-      );
-      if (response.listStory.length < _pageSize) {
-        _isNextPage = false;
-      } else {
-        _currentPage++;
-      }
-      _listStory = [..._listStory, ...response.listStory];
-      _result = ResultSuccess(data: _listStory, message: response.message);
-      notifyListeners();
-    } on HttpException catch (e) {
-      _result = ResultError(error: e, message: e.message);
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Error $e");
-      _result = ResultError(error: e, message: "Failed to get story list");
-      notifyListeners();
+
+    final response = await _storyUsecase.getAll(
+      page: _currentPage,
+      size: _pageSize,
+    );
+
+    switch (response) {
+      case DomainResultSuccess<List<StoryEntity>>(
+        data: final listStoryEntity,
+        message: final message,
+      ):
+        final listStory =
+            listStoryEntity
+                .map((storyEntity) => Story.fromEntity(storyEntity))
+                .toList();
+        if (listStory.length < _pageSize) {
+          _isNextPage = false;
+        } else {
+          _currentPage++;
+        }
+        _listStory = [..._listStory, ...listStory];
+        _result = ResultSuccess(data: _listStory, message: message);
+        notifyListeners();
+
+      case DomainResultError(message: final message):
+        debugPrint(message);
+        _result = ResultError(
+          error: "error",
+          message: "Failed to get story list",
+        );
+        notifyListeners();
+
+      default:
+        return;
     }
   }
 }

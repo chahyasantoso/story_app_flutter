@@ -1,17 +1,28 @@
 import 'dart:typed_data';
 
-import 'package:story_app/data/model/story_add_response.dart';
-
 abstract class StoryRepository {
-  /// problem: addStory di implementasi API return nya StoryAddResponse
-  /// tapi di implementasi SQLite returnnya int misal
-  /// gimana bikin abstract repo yang bisa digunakan oleh semua implementasi???
-  ///
-  Future<StoryAddResponse> addStory(
+  Future<DomainResult> addStory(
     Uint8List imageBytes,
     String filename,
     String description, {
     double? lat,
     double? lon,
   });
+
+  Future<DomainResult> getAllStories({int? page, int? size, int? location = 0});
+
+  Future<DomainResult> getStoryDetail(String id);
+}
+
+sealed class DomainResult {}
+
+final class DomainResultSuccess<T> extends DomainResult {
+  final T data;
+  final String? message;
+  DomainResultSuccess({required this.data, this.message});
+}
+
+final class DomainResultError extends DomainResult {
+  final String? message;
+  DomainResultError({required this.message});
 }

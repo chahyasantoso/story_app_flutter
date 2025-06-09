@@ -1,11 +1,11 @@
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/data/services/sqlite_service.dart';
+import 'package:story_app/data/services/favorite_sqlite_service.dart';
 import 'package:story_app/domain/repositories/favorite_repository.dart';
 
 /// implementasi dari repository yang ada di domain.
 /// yang ini adlah repository yang pakai sqlite
 class FavoriteRepositorySqlite extends FavoriteRepository {
-  final SqliteService _service;
+  final FavoriteSqliteService _service;
   FavoriteRepositorySqlite(this._service);
 
   @override
