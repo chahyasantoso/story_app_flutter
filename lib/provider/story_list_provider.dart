@@ -36,12 +36,12 @@ class StoryListProvider extends SafeChangeNotifier {
       notifyListeners();
     }
 
-    final response = await _storyUsecase.getAll(
+    final domainResult = await _storyUsecase.getAll(
       page: _currentPage,
       size: _pageSize,
     );
 
-    switch (response) {
+    switch (domainResult) {
       case DomainResultSuccess<List<StoryEntity>>(
         data: final listStoryEntity,
         message: final message,

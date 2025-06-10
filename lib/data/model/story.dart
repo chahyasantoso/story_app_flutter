@@ -35,5 +35,7 @@ extension StoryEntityMapper on Story {
     description: description,
     photoUrl: photoUrl,
     createdAt: createdAt,
+    lat: lat,
+    lon: lon,
   );
 }

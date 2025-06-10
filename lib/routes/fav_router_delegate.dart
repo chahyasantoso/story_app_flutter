@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:story_app/data/services/story_api_service.dart';
-import 'package:story_app/provider/story_detail_provider.dart';
-import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_path.dart';
+import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/detail/detail_screen.dart';
 import 'package:story_app/screen/fav/fav_screen.dart';
 
@@ -26,20 +23,8 @@ class FavRouterDelegate extends RouterDelegate<AppPath>
 
   List<Page<dynamic>> get navStack => [
     MaterialPage(key: ValueKey("FavScreen"), child: FavScreen()),
-    if (_appRoute.path is FavDetailPath)
-      MaterialPage(
-        key: ValueKey("DetailScreen"),
-        child: Builder(
-          builder: (context) {
-            final apiService = context.read<StoryApiService>();
-            final id = (_appRoute.path as FavDetailPath).id;
-            return ChangeNotifierProvider(
-              create: (context) => StoryDetailProvider(apiService),
-              child: DetailScreen(id: id),
-            );
-          },
-        ),
-      ),
+    if (_appRoute.path case FavDetailPath(id: final String id))
+      MaterialPage(key: ValueKey("DetailScreen"), child: DetailScreen(id: id)),
   ];
 
   @override

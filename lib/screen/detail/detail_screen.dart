@@ -19,18 +19,19 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> with MapUtils {
+  late StoryDetailProvider detailProvider;
+
   @override
   void initState() {
     super.initState();
+    detailProvider = context.read<StoryDetailProvider>();
     Future.microtask(() {
-      if (!mounted) return;
-      context.read<StoryDetailProvider>().getStoryDetail(widget.id);
+      detailProvider.getStoryDetail(widget.id);
     });
   }
 
-  bool isLocationValid(double? lat, double? lon) {
-    return latLngFromDouble(lat, lon) != null;
-  }
+  bool isLocationValid(double? lat, double? lon) =>
+      latLngFromDouble(lat, lon) != null;
 
   AppLocalizations get appLocalizations =>
       AppLocalizations.of(context) ?? lookupAppLocalizations(Locale('en'));

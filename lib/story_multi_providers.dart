@@ -25,6 +25,7 @@ import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/provider/geocoding_provider.dart';
 import 'package:story_app/provider/location_provider.dart';
 import 'package:story_app/provider/settings_provider.dart';
+import 'package:story_app/provider/story_detail_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
 import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -92,9 +93,9 @@ class StoryMultiProviders extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create:
-              (context) =>
-                  SettingsProvider(context.read<SharedPreferencesService>()),
+              (context) => StoryDetailProvider(context.read<StoryUsecases>()),
         ),
+
         Provider<FavoriteRepository>(
           create:
               (context) => FavoriteRepositorySqlite(
@@ -130,6 +131,11 @@ class StoryMultiProviders extends StatelessWidget {
             favListProvider.onMutation(favMutationProvider);
             return favListProvider;
           },
+        ),
+        ChangeNotifierProvider(
+          create:
+              (context) =>
+                  SettingsProvider(context.read<SharedPreferencesService>()),
         ),
         ChangeNotifierProvider(
           create:

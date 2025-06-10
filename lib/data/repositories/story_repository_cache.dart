@@ -37,7 +37,7 @@ class StoryRepositoryCache implements StoryRepository {
         location: location,
       );
 
-      await _sqliteService.replaceAll(response.listStory);
+      await _sqliteService.insertAll(response.listStory);
       final listStoryEntity =
           response.listStory.map((story) => story.toEntity()).toList();
 
@@ -47,9 +47,15 @@ class StoryRepositoryCache implements StoryRepository {
       );
     } catch (e) {
       try {
-        final response = await _sqliteService.getAllItems();
+        final listStory = await _sqliteService.getAllItems(
+          page: page,
+          size: size,
+          location: location,
+        );
+
         final listStoryEntity =
-            response.map((story) => story.toEntity()).toList();
+            listStory.map((story) => story.toEntity()).toList();
+
         return DomainResultSuccess(
           data: listStoryEntity,
           message: "from cache",
@@ -60,9 +66,29 @@ class StoryRepositoryCache implements StoryRepository {
     }
   }
 
+  /// try to get detail from api, if error get from cache
   @override
-  Future<DomainResult> getStoryDetail(String id) {
-    // TODO: implement getStoryDetail
-    throw UnimplementedError();
+  Future<DomainResult> getStoryDetail(String id) async {
+    try {
+      final response = await _apiService.getStoryDetail(id);
+
+      await _sqliteService.updateItemByStoryId(id, response.story);
+
+      return DomainResultSuccess(
+        data: response.story.toEntity(),
+        message: response.message,
+      );
+    } catch (e) {
+      try {
+        final story = await _sqliteService.getItemByStoryId(id);
+
+        return DomainResultSuccess(
+          data: story.toEntity(),
+          message: "from cache",
+        );
+      } catch (e) {
+        return DomainResultError(message: e.toString());
+      }
+    }
   }
 }
