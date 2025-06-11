@@ -31,9 +31,9 @@ import 'package:story_app/routes/app_path.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/static/auth_state.dart';
 
-class StoryMultiProviders extends StatelessWidget {
+class AppMultiProviders extends StatelessWidget {
   final Widget child;
-  const StoryMultiProviders({super.key, required this.child});
+  const AppMultiProviders({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

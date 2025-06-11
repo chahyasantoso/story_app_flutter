@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:story_app/app_multi_providers.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/settings_provider.dart';
 import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/routes/app_route_parser.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
 import 'package:story_app/static/flavor_type.dart';
-import 'package:story_app/story_multi_providers.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/theme/story_theme.dart';
 
@@ -35,7 +35,7 @@ void main() async {
     databaseFactory = databaseFactoryFfiWeb;
   }
 
-  runApp(StoryMultiProviders(child: const MainApp()));
+  runApp(AppMultiProviders(child: const MainApp()));
 }
 
 class MainApp extends StatefulWidget {
