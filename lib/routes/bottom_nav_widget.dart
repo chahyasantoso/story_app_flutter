@@ -100,6 +100,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
               leading: SizedBox(height: 60),
               backgroundColor: ColorScheme.of(context).surfaceContainer,
               extended: true,
+              selectedIndex: widget.bottomNavRoute.currentIndex,
               destinations:
                   navData
                       .map(
@@ -109,7 +110,6 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
                         ),
                       )
                       .toList(),
-              selectedIndex: widget.bottomNavRoute.currentIndex,
               onDestinationSelected: _onDestinationSelected,
             ),
           Expanded(
@@ -123,6 +123,7 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
       bottomNavigationBar:
           isPortrait
               ? NavigationBar(
+                key: ValueKey(widget.bottomNavRoute.currentIndex),
                 selectedIndex: widget.bottomNavRoute.currentIndex,
                 destinations:
                     navData
