@@ -51,6 +51,8 @@ class _StoryDetailMapState extends State<StoryDetailMap> with MapUtils {
       MediaQuery.of(context).orientation == Orientation.portrait;
 
   void _animateCamera() async {
+    if (!mounted) return;
+
     final size = context.size;
     if (size == null) return;
 

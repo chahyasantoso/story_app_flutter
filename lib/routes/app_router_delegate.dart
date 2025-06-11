@@ -70,7 +70,7 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
     if (_appRoute.path is AddSubPath) ..._addStack,
     if (_appRoute.path is ImageViewPath)
       MaterialPage(
-        key: ValueKey("AddPostScreen"),
+        key: ValueKey("ImageViewScreen"),
         child: ImageViewScreen(url: (_appRoute.path as ImageViewPath).url),
       ),
   ];
@@ -102,11 +102,10 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
           if (topPage.key == page.key) {
             if (_appRoute.path is RegisterPath) {
               _appRoute.goBack();
-            } else if (_appRoute.path is AddPostPath) {
-              //back to the root of bottomNavRoute's path
-              //_appRoute.changePath(_bottomNavRoute.currentPath);
             } else if (_appRoute.path is AddMapPath) {
               _appRoute.goBack();
+            } else if (_appRoute.path is AddPostPath) {
+              _appRoute.changePath(_bottomNavRoute.currentPath);
             } else if (_appRoute.path is ImageViewPath) {
               _appRoute.changePath(_bottomNavRoute.currentPath);
             }
