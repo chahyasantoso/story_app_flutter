@@ -37,13 +37,13 @@ class StorySqliteService {
   Future<int> insertItem(Story story) async {
     final db = await StorySqliteDatabase.database;
 
-    final id = await db.insert(
+    final insertedId = await db.insert(
       _tableName,
       story.toJson(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    if (id == 0) throw Exception("Can't insert item");
-    return id;
+    if (insertedId == 0) throw Exception("Can't insert item");
+    return insertedId;
   }
 
   Future<List<Story>> getAllItems({

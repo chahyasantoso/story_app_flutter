@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
 import 'package:story_app/domain/usecases/favorite_usecases.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/static/result_state.dart';
@@ -26,17 +27,24 @@ class FavoriteListProvider extends SafeChangeNotifier {
 
     _result = ResultLoading();
     notifyListeners();
-    try {
-      _favList = await _favoriteUseCase.getAll();
-      _result = ResultSuccess(
-        data: favList,
-        message: "Fetch favorites success",
-      );
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Error $e");
-      _result = ResultError(error: e, message: "Failed to fetch favorite");
-      notifyListeners();
+
+    final result = await _favoriteUseCase.getAll();
+    switch (result) {
+      case DomainResultSuccess(data: final data):
+        _favList = data;
+        _result = ResultSuccess(
+          data: favList,
+          message: "Fetch favorites success",
+        );
+        notifyListeners();
+
+      case DomainResultError(message: final message):
+        debugPrint("Error $message");
+        _result = ResultError(
+          error: "error",
+          message: "Failed to fetch favorite",
+        );
+        notifyListeners();
     }
   }
 

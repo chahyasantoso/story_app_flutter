@@ -7,14 +7,8 @@ abstract class StorySqliteDatabase {
 
   static Future<void> _createTables(Database database) async {
     await database.execute("""CREATE TABLE favorite(
-       favoriteId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-       id TEXT NOT NULL UNIQUE,
-       name TEXT,
-       description TEXT,
-       photoUrl TEXT,
-       createdAt TEXT,
-       lat REAL,
-       lon REAL
+       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+       storyId TEXT NOT NULL UNIQUE
      )
      """);
 

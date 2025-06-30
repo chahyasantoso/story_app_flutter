@@ -7,44 +7,47 @@ class FavoriteSqliteService {
 
   Future<int> insertItem(Story story) async {
     final db = await StorySqliteDatabase.database;
-
-    final data = story.toJson();
-    final id = await db.insert(
-      _tableName,
-      data,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return id;
+    final insertedId = await db.insert(_tableName, {
+      "storyId": story.id,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    if (insertedId == 0) throw Exception("Can't insert item");
+    return insertedId;
   }
 
   Future<List<Story>> getAllItems() async {
     final db = await StorySqliteDatabase.database;
-    final results = await db.query(_tableName, orderBy: "favoriteId DESC");
+    final results = await db.rawQuery("""SELECT story.*
+      FROM story
+      INNER JOIN favorite ON story.id = favorite.storyId
+      ORDER BY favorite.id DESC
+    """);
     return results.map((result) => Story.fromJson(result)).toList();
   }
 
   Future<Story?> getItemByStoryId(String id) async {
     final db = await StorySqliteDatabase.database;
-
-    final results = await db.query(
-      _tableName,
-      where: "id = ?",
-      whereArgs: [id],
-      limit: 1,
+    final results = await db.rawQuery(
+      """SELECT story.*
+      FROM story
+      INNER JOIN favorite ON story.id = favorite.storyId
+      WHERE favorite.storyId = ?
+      LIMIT 1
+    """,
+      [id],
     );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) throw Exception("Item not found");
     return results.map((result) => Story.fromJson(result)).first;
   }
 
   Future<int> removeItemByStoryId(String id) async {
     final db = await StorySqliteDatabase.database;
-
-    final result = await db.delete(
+    final deletedId = await db.delete(
       _tableName,
-      where: "id = ?",
+      where: "storyId = ?",
       whereArgs: [id],
     );
-    return result;
+    if (deletedId == 0) throw Exception("Can't delete item");
+    return deletedId;
   }
 }

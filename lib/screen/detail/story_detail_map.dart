@@ -42,7 +42,7 @@ class _StoryDetailMapState extends State<StoryDetailMap> with MapUtils {
 
   @override
   void dispose() {
-    mapProvider.removeListener(_animateCamera);
+    //mapProvider.removeListener(_animateCamera);
     sheetController.dispose();
     super.dispose();
   }

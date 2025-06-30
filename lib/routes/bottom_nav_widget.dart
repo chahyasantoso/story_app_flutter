@@ -123,7 +123,6 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
       bottomNavigationBar:
           isPortrait
               ? NavigationBar(
-                key: ValueKey(widget.bottomNavRoute.currentIndex),
                 selectedIndex: widget.bottomNavRoute.currentIndex,
                 destinations:
                     navData

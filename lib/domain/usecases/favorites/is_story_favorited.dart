@@ -1,4 +1,5 @@
 import 'package:story_app/domain/repositories/favorite_repository.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
 
 class IsStoryFavorited {
   final FavoriteRepository _repo;
@@ -6,7 +7,7 @@ class IsStoryFavorited {
   IsStoryFavorited(this._repo);
 
   Future<bool> call(String id) async {
-    final story = await _repo.getItemByStoryId(id);
-    return story != null;
+    final result = await _repo.getItemByStoryId(id);
+    return result is DomainResultSuccess;
   }
 }

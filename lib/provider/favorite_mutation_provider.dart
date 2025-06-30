@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
 import 'package:story_app/domain/usecases/favorite_usecases.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
@@ -19,31 +21,45 @@ class FavoriteMutationProvider extends SafeChangeNotifier {
   Future<void> addFavorite(Story story) async {
     _result = ResultLoading();
     notifyListeners();
-    try {
-      await _favoriteUseCase.add(story);
-      _result = ResultSuccess<Story>(data: story, message: "Story saved");
-      _lastMutation = MutationType.add;
-      notifyListeners();
-    } catch (e) {
-      _result = ResultError(error: e, message: "Failed to add favorites");
-      notifyListeners();
+
+    final result = await _favoriteUseCase.add(story);
+    switch (result) {
+      case DomainResultSuccess():
+        _result = ResultSuccess<Story>(data: story, message: "Story saved");
+        _lastMutation = MutationType.add;
+        notifyListeners();
+
+      case DomainResultError(message: final message):
+        debugPrint("Error $message");
+        _result = ResultError(
+          error: "error",
+          message: "Failed to add favorites",
+        );
+        notifyListeners();
     }
   }
 
   Future<void> removeFavorite(Story story) async {
     _result = ResultLoading();
     notifyListeners();
-    try {
-      await _favoriteUseCase.remove(story.id);
-      _result = ResultSuccess<Story>(
-        data: story,
-        message: "Story removed from favorites",
-      );
-      _lastMutation = MutationType.remove;
-      notifyListeners();
-    } catch (e) {
-      _result = ResultError(error: e, message: "Failed to remove favorites");
-      notifyListeners();
+
+    final result = await _favoriteUseCase.remove(story.id);
+    switch (result) {
+      case DomainResultSuccess():
+        _result = ResultSuccess<Story>(
+          data: story,
+          message: "Story removed from favorites",
+        );
+        _lastMutation = MutationType.remove;
+        notifyListeners();
+
+      case DomainResultError(message: final message):
+        debugPrint("Error $message");
+        _result = ResultError(
+          error: "error",
+          message: "Failed to remove favorites",
+        );
+        notifyListeners();
     }
   }
 

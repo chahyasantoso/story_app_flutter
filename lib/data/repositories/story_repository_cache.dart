@@ -11,6 +11,8 @@ class StoryRepositoryCache implements StoryRepository {
 
   StoryRepositoryCache(this._apiService, this._sqliteService);
 
+  /// add story to api, if success then add to cache
+  /// else error
   @override
   Future<DomainResult> addStory(
     Uint8List imageBytes,
@@ -18,12 +20,32 @@ class StoryRepositoryCache implements StoryRepository {
     String description, {
     double? lat,
     double? lon,
-  }) {
-    // TODO: implement addStory
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _apiService.addStory(
+        imageBytes,
+        filename,
+        description,
+        lat: lat,
+        lon: lon,
+      );
+
+      /// can't cache because api doesn't expose the storyId on success...
+      /// however there's strategy where you can send a tag in description
+      /// and match that desc when getting the story.
+
+      /// final listStory = _apiService.getAllStories(page: 1, size: 5);
+      /// final story = listStory.any(match the tag in description);
+      /// await _sqliteService.insertItem(story);
+
+      return DomainResultSuccess(data: null, message: response.message);
+    } catch (e) {
+      return DomainResultError(message: e.toString());
+    }
   }
 
-  /// always cache the api result. and if api error, use result from cache;
+  /// get stories from api, if success add to cache;
+  /// else get stories from cache
   @override
   Future<DomainResult> getAllStories({
     int? page,
@@ -66,13 +88,14 @@ class StoryRepositoryCache implements StoryRepository {
     }
   }
 
-  /// try to get detail from api, if error get from cache
+  /// get detail from api, if success upsert cache
+  /// else get detail from cache
   @override
   Future<DomainResult> getStoryDetail(String id) async {
     try {
       final response = await _apiService.getStoryDetail(id);
 
-      await _sqliteService.updateItemByStoryId(id, response.story);
+      await _sqliteService.insertItem(response.story); // doing an upsert
 
       return DomainResultSuccess(
         data: response.story.toEntity(),

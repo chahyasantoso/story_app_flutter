@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:story_app/data/repositories/favorite_repository_sqlite.dart';
 import 'package:story_app/data/repositories/story_repository_cache.dart';
 import 'package:story_app/data/services/favorite_sqlite_service.dart';
+import 'package:story_app/data/services/geocoding_service_geocoding.dart';
+import 'package:story_app/data/services/image_service_flutter_image_compress.dart';
 import 'package:story_app/data/services/location_service.dart';
 import 'package:story_app/data/services/shared_preferences_service.dart';
 import 'package:story_app/data/services/story_api_service.dart';
@@ -82,7 +84,11 @@ class AppMultiProviders extends StatelessWidget {
           create: (context) {
             final repo = context.read<StoryRepository>();
             return StoryUsecases(
-              add: AddStory(repo),
+              add: AddStory(
+                repo,
+                ImageServiceFlutterImageCompress(),
+                GeocodingServiceGeocoding(),
+              ),
               getAll: GetAllStories(repo),
               getDetail: GetStoryDetail(repo),
             );

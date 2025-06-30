@@ -8,9 +8,7 @@ abstract class StoryRepository {
     double? lat,
     double? lon,
   });
-
   Future<DomainResult> getAllStories({int? page, int? size, int? location = 0});
-
   Future<DomainResult> getStoryDetail(String id);
 }
 

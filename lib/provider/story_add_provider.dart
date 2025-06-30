@@ -1,17 +1,15 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:story_app/data/services/story_api_service.dart';
-import 'package:story_app/static/map_utils.dart';
-import 'package:story_app/static/result_state.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:story_app/domain/entities/image_data_entity.dart';
+import 'package:story_app/domain/repositories/story_repository.dart';
+import 'package:story_app/domain/usecases/story_usecases.dart';
+import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/safe_change_notifier.dart';
 import 'package:story_app/widget/validation_exception.dart';
 
-class StoryAddProvider extends SafeChangeNotifier with MapUtils {
-  final StoryApiService _apiService;
-  StoryAddProvider(this._apiService);
+class StoryAddProvider extends SafeChangeNotifier {
+  final StoryUsecases _storyUsecases;
+  StoryAddProvider(this._storyUsecases);
 
   XFile? _imageFile;
   XFile? get imageFile => _imageFile;
@@ -48,88 +46,36 @@ class StoryAddProvider extends SafeChangeNotifier with MapUtils {
     _result = ResultLoading();
     notifyListeners();
     try {
-      final (imageBytes, filename) = await _validateImageFile();
-      final (lat, lon) = await _validateLocation();
-      final description = _validateDescription();
+      final imageFile = _imageFile;
+      ImageDataEntity? imageData;
+      if (imageFile != null) {
+        final bytes = await imageFile.readAsBytes();
+        imageData = ImageDataEntity(bytes, imageFile.name);
+      }
 
-      final result = await _apiService.addStory(
-        imageBytes,
-        filename,
+      final domainResult = await _storyUsecases.add(
+        imageData,
         description,
-        lat: lat,
-        lon: lon,
+        location,
       );
-      _result = ResultSuccess(data: null, message: result.message);
-      notifyListeners();
+
+      switch (domainResult) {
+        case DomainResultSuccess(data: final data, message: final message):
+          _result = ResultSuccess(data: data, message: message);
+          notifyListeners();
+
+        case DomainResultError(message: final message):
+          debugPrint(message);
+          _result = ResultError(
+            error: "error",
+            message: "Failed to post story",
+          );
+          notifyListeners();
+      }
     } on ValidationException catch (e) {
       _result = ResultError(error: e, message: e.message);
       notifyListeners();
-    } catch (e) {
-      debugPrint("Error $e");
-      _result = ResultError(error: e, message: "Failed to post story");
-      notifyListeners();
     }
-  }
-
-  final maxFileSize = 1024 * 1024;
-  Future<Uint8List> _compressImage(XFile file) async {
-    int quality = 90;
-    Uint8List? compressedBytes;
-    Uint8List originalBytes = await file.readAsBytes();
-
-    while (quality > 10) {
-      compressedBytes = await FlutterImageCompress.compressWithList(
-        originalBytes,
-        quality: quality,
-      );
-      if (compressedBytes.lengthInBytes < maxFileSize) {
-        return compressedBytes;
-      }
-      quality -= 10;
-    }
-    return compressedBytes ?? originalBytes;
-  }
-
-  Future<(Uint8List, String)> _validateImageFile() async {
-    final imageFile = _imageFile;
-    if (imageFile == null) throw ImageValidationException("Image is missing");
-    final compressedImageBytes = await _compressImage(imageFile);
-    if (compressedImageBytes.lengthInBytes >= maxFileSize) {
-      throw ImageValidationException("Image size is too big");
-    }
-    return (compressedImageBytes, imageFile.name);
-  }
-
-  String _validateDescription() {
-    final desc = _description;
-    if (desc == null || desc.trim().isEmpty) {
-      throw DescriptionValidationException("Description cannot be empty");
-    }
-    return desc;
-  }
-
-  Future<LatLng?> _parseAddress(String input) async {
-    try {
-      final result = await locationFromAddress(input);
-      if (result.isEmpty) return null;
-      final loc = result.first;
-      return LatLng(loc.latitude, loc.longitude);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<(double?, double?)> _validateLocation() async {
-    final location = _location;
-    if (location == null || location.trim().isEmpty) {
-      return (null, null);
-    }
-    LatLng? coordinates = parseLatLng(location);
-    coordinates ??= await _parseAddress(location);
-    if (coordinates == null) {
-      throw LocationValidationException("Can't find address");
-    }
-    return (coordinates.latitude, coordinates.longitude);
   }
 
   void clearError<V extends ValidationException>() {

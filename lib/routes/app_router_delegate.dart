@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:story_app/data/services/story_api_service.dart';
+import 'package:story_app/domain/usecases/story_usecases.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_map_provider.dart';
 import 'package:story_app/routes/app_path.dart';
@@ -89,8 +89,7 @@ class AppRouterDelegate extends RouterDelegate<AppPath>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create:
-              (context) => StoryAddProvider(context.read<StoryApiService>()),
+          create: (context) => StoryAddProvider(context.read<StoryUsecases>()),
         ),
         ChangeNotifierProvider(create: (context) => StoryMapProvider()),
       ],
