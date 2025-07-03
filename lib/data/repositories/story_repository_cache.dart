@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/story_api_service.dart';
 import 'package:story_app/data/services/story_sqlite_service.dart';
+import 'package:story_app/domain/entities/story_entity.dart';
 import 'package:story_app/domain/repositories/story_repository.dart';
 
 class StoryRepositoryCache implements StoryRepository {
@@ -14,7 +15,7 @@ class StoryRepositoryCache implements StoryRepository {
   /// add story to api, if success then add to cache
   /// else error
   @override
-  Future<DomainResult> addStory(
+  Future<DomainResult<void>> addStory(
     Uint8List imageBytes,
     String filename,
     String description, {
@@ -47,7 +48,7 @@ class StoryRepositoryCache implements StoryRepository {
   /// get stories from api, if success add to cache;
   /// else get stories from cache
   @override
-  Future<DomainResult> getAllStories({
+  Future<DomainResult<List<StoryEntity>>> getAllStories({
     int? page,
     int? size,
     int? location = 0,
@@ -91,7 +92,7 @@ class StoryRepositoryCache implements StoryRepository {
   /// get detail from api, if success upsert cache
   /// else get detail from cache
   @override
-  Future<DomainResult> getStoryDetail(String id) async {
+  Future<DomainResult<StoryEntity>> getStoryDetail(String id) async {
     try {
       final response = await _apiService.getStoryDetail(id);
 

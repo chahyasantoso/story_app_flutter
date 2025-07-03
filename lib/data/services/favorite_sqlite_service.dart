@@ -24,7 +24,7 @@ class FavoriteSqliteService {
     return results.map((result) => Story.fromJson(result)).toList();
   }
 
-  Future<Story?> getItemByStoryId(String id) async {
+  Future<Story> getItemByStoryId(String id) async {
     final db = await StorySqliteDatabase.database;
     final results = await db.rawQuery(
       """SELECT story.*

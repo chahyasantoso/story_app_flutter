@@ -11,7 +11,7 @@ class ResultSuccess<T> extends ResultState {
 }
 
 class ResultError extends ResultState {
-  final Object error;
+  final Object? error;
   final String? message;
-  ResultError({required this.error, this.message});
+  ResultError({this.error, this.message});
 }

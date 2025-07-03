@@ -16,7 +16,7 @@ class AddStory {
     final int maxFileSize = 1024 * 1024,
   }) : _maxFileSize = maxFileSize;
 
-  Future<DomainResult> call(
+  Future<DomainResult<void>> call(
     ImageDataEntity? imageData,
     String? description,
     String? location,

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story_app/data/model/login_result.dart';
 import 'package:story_app/data/model/settings.dart';
-import 'package:story_app/data/model/user_profile.dart';
 
 class SharedPreferencesService {
   final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
@@ -10,15 +10,15 @@ class SharedPreferencesService {
   static const String keyUser = "STORY_APP_USER";
   static const String keySetting = "STORY_APP_SETTING";
 
-  Future<void> saveUserValue(UserProfile user) async {
+  Future<void> saveUserValue(LoginResult user) async {
     String userString = jsonEncode(user.toJson());
     await _preferences.setString(keyUser, userString);
   }
 
-  Future<UserProfile?> getUserValue() async {
+  Future<LoginResult?> getUserValue() async {
     final userString = await _preferences.getString(keyUser);
     final userJson = jsonDecode("$userString");
-    return userJson != null ? UserProfile.fromJson(userJson) : null;
+    return userJson != null ? LoginResult.fromJson(userJson) : null;
   }
 
   Future<void> removeUserValue() async {

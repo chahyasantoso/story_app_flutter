@@ -66,9 +66,6 @@ class StoryListProvider extends SafeChangeNotifier {
           message: "Failed to get story list",
         );
         notifyListeners();
-
-      default:
-        return;
     }
   }
 }

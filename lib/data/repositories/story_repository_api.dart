@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/data/services/story_api_service.dart';
+import 'package:story_app/domain/entities/story_entity.dart';
 import 'package:story_app/domain/repositories/story_repository.dart';
 
 class StoryRepositoryApi implements StoryRepository {
@@ -10,7 +11,7 @@ class StoryRepositoryApi implements StoryRepository {
   StoryRepositoryApi(this._service);
 
   @override
-  Future<DomainResult> addStory(
+  Future<DomainResult<void>> addStory(
     Uint8List imageBytes,
     String filename,
     String description, {
@@ -32,7 +33,7 @@ class StoryRepositoryApi implements StoryRepository {
   }
 
   @override
-  Future<DomainResult> getAllStories({
+  Future<DomainResult<List<StoryEntity>>> getAllStories({
     int? page,
     int? size,
     int? location = 0,
@@ -55,7 +56,7 @@ class StoryRepositoryApi implements StoryRepository {
   }
 
   @override
-  Future<DomainResult> getStoryDetail(String id) async {
+  Future<DomainResult<StoryEntity>> getStoryDetail(String id) async {
     try {
       final result = await _service.getStoryDetail(id);
       return DomainResultSuccess(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/repositories/favorite_repository_sqlite.dart';
 import 'package:story_app/data/repositories/story_repository_cache.dart';
+import 'package:story_app/data/repositories/user_repository_cache.dart';
 import 'package:story_app/data/services/favorite_sqlite_service.dart';
 import 'package:story_app/data/services/geocoding_service_geocoding.dart';
 import 'package:story_app/data/services/image_service_flutter_image_compress.dart';
@@ -12,15 +13,21 @@ import 'package:story_app/data/services/story_auth_service.dart';
 import 'package:story_app/data/services/story_sqlite_service.dart';
 import 'package:story_app/domain/repositories/favorite_repository.dart';
 import 'package:story_app/domain/repositories/story_repository.dart';
+import 'package:story_app/domain/repositories/user_repository.dart';
 import 'package:story_app/domain/usecases/favorite_usecases.dart';
-import 'package:story_app/domain/usecases/favorites/add_story_to_favorites.dart';
+import 'package:story_app/domain/usecases/favorites/add_story_to_favorite.dart';
 import 'package:story_app/domain/usecases/favorites/get_all_favorite_stories.dart';
 import 'package:story_app/domain/usecases/favorites/is_story_favorited.dart';
-import 'package:story_app/domain/usecases/favorites/remove_story_from_favorites.dart';
+import 'package:story_app/domain/usecases/favorites/remove_story_from_favorite.dart';
 import 'package:story_app/domain/usecases/story/add_story.dart';
 import 'package:story_app/domain/usecases/story/get_all_stories.dart';
 import 'package:story_app/domain/usecases/story/get_story_detail.dart';
 import 'package:story_app/domain/usecases/story_usecases.dart';
+import 'package:story_app/domain/usecases/user/load_user.dart';
+import 'package:story_app/domain/usecases/user/login_user.dart';
+import 'package:story_app/domain/usecases/user/logout_user.dart';
+import 'package:story_app/domain/usecases/user/register_user.dart';
+import 'package:story_app/domain/usecases/user_usecases.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
@@ -45,20 +52,36 @@ class AppMultiProviders extends StatelessWidget {
         Provider(create: (_) => StoryAuthService()),
         Provider(create: (_) => FavoriteSqliteService()),
         Provider(create: (_) => LocationService()),
-        ChangeNotifierProvider(
+
+        Provider<UserRepository>(
           create:
-              (context) => AppAuthProvider(
-                storyAuthService: context.read<StoryAuthService>(),
-                prefService: context.read<SharedPreferencesService>(),
+              (context) => UserRepositoryCache(
+                context.read<StoryAuthService>(),
+                context.read<SharedPreferencesService>(),
               ),
+        ),
+        Provider(
+          create: (context) {
+            final repo = context.read<UserRepository>();
+            return UserUsecases(
+              loginUser: LoginUser(repo),
+              registerUser: RegisterUser(repo),
+              logoutUser: LogoutUser(repo),
+              loadUser: LoadUser(repo),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AppAuthProvider(context.read<UserUsecases>()),
         ),
         ProxyProvider<AppAuthProvider, StoryApiService>(
           update: (context, authProvider, prev) {
             final service = prev ?? StoryApiService();
-            service.token = authProvider.userProfile?.token ?? "";
+            service.token = authProvider.user?.token ?? "";
             return service;
           },
         ),
+
         ChangeNotifierProvider(
           create:
               (context) => AppRoute(
@@ -72,6 +95,7 @@ class AppMultiProviders extends StatelessWidget {
                 },
               ),
         ),
+
         Provider(create: (context) => StorySqliteService()),
         Provider<StoryRepository>(
           create:
@@ -112,10 +136,10 @@ class AppMultiProviders extends StatelessWidget {
           create: (context) {
             final repo = context.read<FavoriteRepository>();
             return FavoriteUseCases(
-              add: AddStoryToFavorites(repo),
+              add: AddStoryToFavorite(repo),
               getAll: GetAllFavoriteStories(repo),
               isFavorite: IsStoryFavorited(repo),
-              remove: RemoveStoryFromFavorites(repo),
+              remove: RemoveStoryFromFavorite(repo),
             );
           },
         ),
@@ -138,6 +162,7 @@ class AppMultiProviders extends StatelessWidget {
             return favListProvider;
           },
         ),
+
         ChangeNotifierProvider(
           create:
               (context) =>

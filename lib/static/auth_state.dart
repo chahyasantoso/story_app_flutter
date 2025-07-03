@@ -1,4 +1,4 @@
-import 'package:story_app/data/model/user_profile.dart';
+import 'package:story_app/data/model/login_result.dart';
 
 sealed class AuthState {}
 
@@ -13,7 +13,7 @@ class AuthAuthenticating extends AuthState {}
 class AuthSigningOut extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
-  final UserProfile user;
+  final LoginResult user;
   final String? message;
   AuthAuthenticated({required this.user, this.message});
 }

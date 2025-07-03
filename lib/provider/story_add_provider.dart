@@ -45,6 +45,7 @@ class StoryAddProvider extends SafeChangeNotifier {
   Future<void> addStory() async {
     _result = ResultLoading();
     notifyListeners();
+
     try {
       final imageFile = _imageFile;
       ImageDataEntity? imageData;
@@ -60,16 +61,13 @@ class StoryAddProvider extends SafeChangeNotifier {
       );
 
       switch (domainResult) {
-        case DomainResultSuccess(data: final data, message: final message):
-          _result = ResultSuccess(data: data, message: message);
+        case DomainResultSuccess(message: final message):
+          _result = ResultSuccess(data: null, message: message);
           notifyListeners();
 
         case DomainResultError(message: final message):
           debugPrint(message);
-          _result = ResultError(
-            error: "error",
-            message: "Failed to post story",
-          );
+          _result = ResultError(message: "Failed to post story");
           notifyListeners();
       }
     } on ValidationException catch (e) {

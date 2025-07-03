@@ -30,8 +30,13 @@ class FavoriteListProvider extends SafeChangeNotifier {
 
     final result = await _favoriteUseCase.getAll();
     switch (result) {
-      case DomainResultSuccess(data: final data):
-        _favList = data;
+      case DomainResultSuccess(data: final listStoryEntity):
+        final listStory =
+            listStoryEntity
+                .map((storyEntity) => Story.fromEntity(storyEntity))
+                .toList();
+
+        _favList = listStory;
         _result = ResultSuccess(
           data: favList,
           message: "Fetch favorites success",

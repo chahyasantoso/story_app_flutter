@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/domain/entities/story_entity.dart';
 import 'package:story_app/domain/repositories/story_repository.dart';
 import 'package:story_app/domain/usecases/story_usecases.dart';
 import 'package:story_app/static/result_state.dart';
@@ -19,10 +18,7 @@ class StoryDetailProvider extends SafeChangeNotifier {
 
     final domainResult = await _storyUsecase.getDetail(id);
     switch (domainResult) {
-      case DomainResultSuccess<StoryEntity>(
-        data: final storyEntity,
-        message: final message,
-      ):
+      case DomainResultSuccess(data: final storyEntity, message: final message):
         final story = Story.fromEntity(storyEntity);
         _result = ResultSuccess(data: story, message: message);
         notifyListeners();
@@ -34,9 +30,6 @@ class StoryDetailProvider extends SafeChangeNotifier {
           message: "Failed to get story detail",
         );
         notifyListeners();
-
-      default:
-        return;
     }
   }
 }
