@@ -8,8 +8,8 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:story_app/app_multi_providers.dart';
 import 'package:story_app/provider/settings_provider.dart';
 import 'package:story_app/routes/app_route.dart';
-import 'package:story_app/routes/app_route_parser.dart';
 import 'package:story_app/routes/app_router_delegate.dart';
+import 'package:story_app/routes/go_router/app_router_go_router.dart';
 import 'package:story_app/static/flavor_type.dart';
 import 'package:story_app/style/colors/story_colors.dart';
 import 'package:story_app/style/theme/story_theme.dart';
@@ -73,9 +73,10 @@ class _MainAppState extends State<MainApp> {
       scrollBehavior: ScrollConfiguration.of(context).copyWith(
         dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
       ),
-      routeInformationParser: AppRouteParser(),
-      routerDelegate: appRouterDelegate,
-      backButtonDispatcher: RootBackButtonDispatcher(),
+      // routeInformationParser: AppRouteParser(),
+      // routerDelegate: appRouterDelegate,
+      // backButtonDispatcher: RootBackButtonDispatcher(),
+      routerConfig: router,
     );
   }
 }

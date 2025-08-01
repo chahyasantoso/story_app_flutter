@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
 import 'package:story_app/provider/favorite_mutation_provider.dart';
 import 'package:story_app/provider/story_add_provider.dart';
 import 'package:story_app/provider/story_list_provider.dart';
-import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/home/story_item.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
@@ -80,8 +80,7 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
   }
 
   void handleDetail(String id) {
-    final appRoute = context.read<AppRoute>();
-    appRoute.go("/app/home/detail/$id");
+    context.go("/home/detail/$id");
   }
 
   @override
@@ -99,10 +98,12 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
           builder: (context, provider, child) {
             return switch (provider.result) {
               ResultLoading() => Center(child: CircularProgressIndicator()),
+
               ResultSuccess<List<Story>>(data: final data) when data.isEmpty =>
                 Center(
                   child: IconMessage.notFound(appLocalizations.messageNotFound),
                 ),
+
               ResultSuccess<List<Story>>(data: final data)
                   when data.isNotEmpty =>
                 RefreshIndicator(
@@ -110,8 +111,9 @@ class _HomeScreenState extends State<HomeScreen> with SnackBarUtils {
                   child: ListView.builder(
                     key: PageStorageKey("storyList"),
                     controller: scrollController,
-                    scrollDirection:
-                        isPortrait ? Axis.vertical : Axis.horizontal,
+                    scrollDirection: isPortrait
+                        ? Axis.vertical
+                        : Axis.horizontal,
                     itemCount: data.length + (provider.isNextPage ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == data.length) {

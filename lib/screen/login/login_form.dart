@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -7,6 +7,8 @@ import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/widget/email_form_field.dart';
 import 'package:story_app/widget/loading_button.dart';
 import 'package:story_app/widget/password_form_field.dart';
+
+import '/l10n/app_localizations.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -50,9 +52,7 @@ class _LoginFormState extends State<LoginForm> {
         children: [
           EmailFormField(controller: emailController),
           PasswordFormField(controller: passwordController),
-          SizedBox(
-            height: 4,
-          ),
+          SizedBox(height: 4),
           SizedBox(
             width: double.infinity,
             child: LoadingButton(
@@ -81,16 +81,14 @@ class _LoginFormState extends State<LoginForm> {
   void onLogin() async {
     FocusScope.of(context).unfocus();
     if (formKey.currentState?.validate() != true) return;
-    await authProvider.loginUser(
-      emailController.text,
-      passwordController.text,
-    );
-    if (authProvider.authState is AuthAuthenticated) {
-      appRoute.go("/app/home");
+
+    await authProvider.loginUser(emailController.text, passwordController.text);
+    if (mounted && authProvider.authState is AuthAuthenticated) {
+      context.go("/home");
     }
   }
 
   void onRegister() {
-    appRoute.go("/register");
+    context.go("/register");
   }
 }

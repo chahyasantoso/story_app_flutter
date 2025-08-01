@@ -12,6 +12,7 @@ class ImageViewScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        title: Text("Image"),
       ),
       backgroundColor: Colors.black,
       body: Center(

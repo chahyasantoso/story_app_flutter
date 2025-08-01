@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -9,6 +10,7 @@ import 'package:story_app/static/auth_state.dart';
 import 'package:story_app/static/snack_bar_utils.dart';
 import 'package:story_app/widget/adaptive_header_layout.dart';
 import 'package:story_app/widget/story_app_header.dart';
+
 import '/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -43,8 +45,8 @@ class _LoginScreenState extends State<LoginScreen> with SnackBarUtils {
     appRoute = context.read<AppRoute>();
     Future.microtask(() async {
       await authProvider.loaduser();
-      if (authProvider.authState is AuthAuthenticated) {
-        appRoute.go("/app/home");
+      if (mounted && authProvider.authState is AuthAuthenticated) {
+        context.go("/home");
       }
     });
   }
@@ -77,9 +79,7 @@ class _LoginScreenState extends State<LoginScreen> with SnackBarUtils {
   Widget buildContent() {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(appLocalizations.titleLogin),
-      ),
+      appBar: AppBar(title: Text(appLocalizations.titleLogin)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Align(
@@ -87,11 +87,7 @@ class _LoginScreenState extends State<LoginScreen> with SnackBarUtils {
           child: SingleChildScrollView(
             child: Column(
               spacing: 16,
-              children: [
-                LoginForm(),
-                buildDivider(),
-                buildSignInWithGoogle(),
-              ],
+              children: [LoginForm(), buildDivider(), buildSignInWithGoogle()],
             ),
           ),
         ),

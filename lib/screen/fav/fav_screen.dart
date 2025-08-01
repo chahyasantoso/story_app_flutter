@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
 import 'package:story_app/provider/favorite_list_provider.dart';
-import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/fav/animated_story_item.dart';
 import 'package:story_app/static/result_state.dart';
 import 'package:story_app/widget/icon_message.dart';
@@ -29,8 +29,7 @@ class _FavScreenState extends State<FavScreen> with TickerProviderStateMixin {
   }
 
   void handleDetail(String id) {
-    final appRoute = context.read<AppRoute>();
-    appRoute.go("/app/fav/detail/$id");
+    context.go("/fav/detail/$id");
   }
 
   @override

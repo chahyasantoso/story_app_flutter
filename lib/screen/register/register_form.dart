@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/app_auth_provider.dart';
 import 'package:story_app/routes/app_route.dart';
@@ -8,6 +8,8 @@ import 'package:story_app/widget/email_form_field.dart';
 import 'package:story_app/widget/loading_button.dart';
 import 'package:story_app/widget/password_form_field.dart';
 import 'package:story_app/widget/username_form_field.dart';
+
+import '/l10n/app_localizations.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -39,19 +41,6 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-  void onRegister() async {
-    FocusScope.of(context).unfocus();
-    if (formKey.currentState?.validate() != true) return;
-    await authProvider.registerUser(
-      usernameController.text,
-      emailController.text,
-      passwordController.text,
-    );
-    if (authProvider.authState is AuthAccountCreated) {
-      appRoute.go("/login");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isCreatingAccount =
@@ -67,9 +56,7 @@ class _RegisterFormState extends State<RegisterForm> {
           UsernameFormField(controller: usernameController),
           EmailFormField(controller: emailController),
           PasswordFormField(controller: passwordController),
-          SizedBox(
-            height: 4,
-          ),
+          SizedBox(height: 4),
           LoadingButton(
             isLoading: isCreatingAccount,
             onPressed: onRegister,
@@ -78,5 +65,19 @@ class _RegisterFormState extends State<RegisterForm> {
         ],
       ),
     );
+  }
+
+  void onRegister() async {
+    FocusScope.of(context).unfocus();
+    if (formKey.currentState?.validate() != true) return;
+
+    await authProvider.registerUser(
+      usernameController.text,
+      emailController.text,
+      passwordController.text,
+    );
+    if (mounted && authProvider.authState is AuthAccountCreated) {
+      context.go("/login");
+    }
   }
 }

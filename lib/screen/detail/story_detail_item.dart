@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:story_app/data/model/story.dart';
-import 'package:story_app/routes/app_route.dart';
 import 'package:story_app/screen/home/story_item.dart';
 import 'package:story_app/style/typography/story_text_styles.dart';
 import 'package:story_app/widget/flex_scroll_layout.dart';
@@ -33,10 +32,7 @@ class _StoryDetailItemState extends State<StoryDetailItem> {
 
   Widget buildImage() {
     return GestureDetector(
-      onTap:
-          () => context.read<AppRoute>().go(
-            "/app/image?url=${widget.data.photoUrl}",
-          ),
+      onTap: () => context.push("/image?url=${widget.data.photoUrl}"),
       child: StoryItem(data: widget.data, showName: false),
     );
   }
